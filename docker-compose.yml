@@ -1,0 +1,29 @@
+# Giữ tên project "btl" để dùng lại volume cache LeanDojo/elan đã tạo.
+name: btl
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        WITH_LEAN: "1"
+    image: g7-proofsearch:latest
+    working_dir: /work
+    volumes:
+      - .:/work
+      # Cache repo Lean đã trace (mathlib trace rất lâu) — giữ qua các lần chạy container.
+      - lean_dojo_cache:/root/.cache/lean_dojo
+      - elan_toolchains:/root/.elan/toolchains
+      - lean_interact_cache:/root/.cache/lean_interact   # REPL + mathlib build sẵn
+    env_file:
+      - path: .env          # GITHUB_ACCESS_TOKEN=... (không commit)
+        required: false
+    ports:
+      - "8501:8501"         # Streamlit
+      - "4040:4040"         # Spark UI
+    shm_size: "2gb"
+
+volumes:
+  lean_dojo_cache:
+  elan_toolchains:
+  lean_interact_cache:

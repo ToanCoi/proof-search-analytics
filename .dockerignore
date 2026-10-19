@@ -1,0 +1,10 @@
+.git
+.venv
+data
+artifacts
+results
+spark-warehouse
+**/__pycache__
+.pytest_cache
+*.pdf
+*.doc

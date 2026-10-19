@@ -1,0 +1,13 @@
+# Baseline no-pruning, budget M. Mọi so sánh pruning phải dùng CÙNG budget này.
+run_name: search-baseline-M
+data_version: lb4-z10114185            # khớp DV trong Makefile / phiên bản Benchmark đã tải
+backend: lean
+theorems: data/selections/thm_100_s42.jsonl
+n_theorems: 100
+split: test
+budget: {budget_id: M, max_calls: 200, timeout_s: 120, max_depth: 8}
+dojo_timeout_s: 600             # timeout mở 1 định lý trong Dojo
+workers: 4                      # mỗi worker giữ 1 tiến trình Lean, ~2-4 GB RAM
+seed: 42
+policy: none
+tau: 0.0

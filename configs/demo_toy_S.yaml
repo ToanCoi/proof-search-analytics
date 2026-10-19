@@ -1,0 +1,11 @@
+# Chỉ để chạy thử pipeline offline (make demo). backend=toy -> dữ liệu tổng hợp, không dùng cho báo cáo.
+run_name: demo-toy-S
+data_version: toy-synthetic
+backend: toy
+theorems: data/demo/sel.jsonl
+n_theorems: 30
+budget: {budget_id: S, max_calls: 50, timeout_s: 30, max_depth: 8}
+workers: 1
+seed: 42
+policy: none
+tau: 0.0

@@ -1,0 +1,15 @@
+# Smoke test LeanInteract KHÔNG cần mathlib (chỉ Lean core, tải ~1 GB toolchain).
+run_name: smoke-repl-core
+data_version: smoke-core
+backend: repl
+lean_version: v4.9.0
+require_mathlib: false
+theorems: tests/fixtures/core_theorems.jsonl
+n_theorems: 3
+budget: {budget_id: S, max_calls: 50, timeout_s: 60, max_depth: 4}
+tactic_timeout_s: 20
+workers: 1
+seed: 42
+policy: none
+tau: 0.0
+candidates: [rfl, simp, omega, decide, intro h, constructor]

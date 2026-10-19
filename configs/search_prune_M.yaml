@@ -1,0 +1,13 @@
+# Live check cho tau tốt nhất chọn từ replay (make sweep). Cùng định lý + budget M với baseline.
+run_name: search-prune-M
+data_version: lb4-z10114185
+backend: lean
+theorems: data/selections/thm_100_s42.jsonl
+n_theorems: 100
+split: test
+budget: {budget_id: M, max_calls: 200, timeout_s: 120, max_depth: 8}
+dojo_timeout_s: 600
+workers: 4
+seed: 42
+policy: artifacts/tactic_model.joblib
+tau: 0.02                       # sửa theo điểm gối trên Pareto

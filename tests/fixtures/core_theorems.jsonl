@@ -1,0 +1,3 @@
+{"full_name": "smoke_add_comm", "file_path": "smoke/core", "split": "test", "domain": "smoke", "statement": "theorem smoke_add_comm (a b : Nat) : a + b = b + a := by", "header": ""}
+{"full_name": "smoke_lt", "file_path": "smoke/core", "split": "test", "domain": "smoke", "statement": "theorem smoke_lt (n : Nat) (h : n < 3) : n + 1 ≤ 3 := by", "header": ""}
+{"full_name": "smoke_and", "file_path": "smoke/core", "split": "test", "domain": "smoke", "statement": "theorem smoke_and (p q : Prop) (hp : p) (hq : q) : p ∧ q := by", "header": ""}

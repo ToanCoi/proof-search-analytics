@@ -1,0 +1,3 @@
+# Chỉ cần cho trace collector chạy Lean thật (src/search/live.py). Linux/macOS/Docker.
+lean-dojo>=2.1,<3
+lean-interact==0.11.6
