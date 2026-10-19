@@ -1,0 +1,32 @@
+{
+  "machine": {
+    "cpu": "x86_64",
+    "cores": 8,
+    "ram_gb": 19.5,
+    "gpu": "none",
+    "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.36"
+  },
+  "software": {
+    "python": "3.11.17",
+    "spark": "3.5.3",
+    "pyarrow": "17.0.0",
+    "sklearn": "1.5.2",
+    "lean": "n/a",
+    "java": "openjdk version \"17.0.20.1\" 2026-08-18",
+    "lean_dojo": "2.2.0"
+  },
+  "source": "results/raw/predictor_metrics.json",
+  "model_hash": "8f2498e4",
+  "params": {
+    "lake": "data/lake/events",
+    "top": 50,
+    "seed": 42,
+    "max_train": 300000,
+    "ngram_max": 2,
+    "max_features": 200000,
+    "model_out": "artifacts/tactic_model.joblib",
+    "results": "results/raw",
+    "tag": ""
+  },
+  "seed": 42
+}

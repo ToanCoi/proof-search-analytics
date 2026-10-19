@@ -73,7 +73,7 @@ make select-minif2f            # 100 bài cố định (seed 42) -> data/selecti
 make collect CONFIG=configs/search_repl_baseline_S.yaml   # chạy thử (lần đầu tải mathlib build sẵn)
 make baseline-repl             # no-pruning budget S/M/L (E3) — LÂU, chạy nền qua đêm
 make sweep RUN=<run_id repl-baseline-M>                   # replay τ ∈ {0..0.2} ×3 (E4)
-make collect CONFIG=configs/search_repl_prune_M.yaml      # live check τ tốt nhất
+make collect CONFIG=configs/search_repl_prune_M_tau0005.yaml      # live check τ tốt nhất
 make aggregate-search && make figures && make dashboard
 ```
 

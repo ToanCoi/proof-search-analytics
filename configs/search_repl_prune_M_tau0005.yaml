@@ -1,0 +1,19 @@
+# Live check tau tốt nhất (chọn từ make sweep) — cùng định lý, budget M, candidates với baseline.
+# Mọi so sánh pruning phải dùng CÙNG budget, tập định lý và danh sách candidates này.
+run_name: repl-prune-M-tau0005
+data_version: minif2f-ds15@2c4ba91+lean-v4.9.0
+backend: repl
+lean_version: v4.9.0            # khớp phiên bản Lean mà bộ statement miniF2F này nhắm tới
+require_mathlib: true
+theorems: data/selections/minif2f_100_s42.jsonl
+n_theorems: 100
+budget: {budget_id: M, max_calls: 200, timeout_s: 120, max_depth: 8}
+tactic_timeout_s: 20            # timeout cứng mỗi lời gọi (dự phòng; kill REPL)
+max_heartbeats: 200000          # thay "maxHeartbeats 0" của header miniF2F: tactic chậm báo lỗi tất định
+restart_every: 20               # khởi động lại REPL sau N định lý (REPL giữ mọi proof state trong RAM)
+workers: 2                      # mỗi worker 1 REPL đã import Mathlib, ~4-6 GB RAM
+seed: 42
+policy: artifacts/tactic_model.joblib
+tau: 0.005                      # điểm gối Pareto từ sweep baseline M (replay)
+candidates: [rfl, simp, norm_num, omega, ring, linarith, nlinarith, decide, positivity,
+             simp_all, aesop, intro h, constructor, "exact?"]

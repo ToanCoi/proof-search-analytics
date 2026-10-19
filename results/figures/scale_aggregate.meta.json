@@ -1,0 +1,38 @@
+{
+  "machine": {
+    "cpu": "x86_64",
+    "cores": 8,
+    "ram_gb": 19.5,
+    "gpu": "none",
+    "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.36"
+  },
+  "software": {
+    "python": "3.11.17",
+    "spark": "3.5.3",
+    "pyarrow": "17.0.0",
+    "sklearn": "1.5.2",
+    "lean": "n/a",
+    "java": "openjdk version \"17.0.20.1\" 2026-08-18",
+    "lean_dojo": "2.2.0"
+  },
+  "source_runs": [
+    "20261019-120711-agg-benchmark_n100-916a",
+    "20261019-120755-agg-benchmark_n100-52de",
+    "20261019-120857-agg-benchmark_n100-922b",
+    "20261019-120934-agg-benchmark_n1000-302f",
+    "20261019-121023-agg-benchmark_n1000-57f1",
+    "20261019-121105-agg-benchmark_n1000-867d",
+    "20261019-121153-agg-benchmark_n10000-bd95",
+    "20261019-121235-agg-benchmark_n10000-d93a",
+    "20261019-121316-agg-benchmark_n10000-0b39",
+    "20261019-121357-agg-benchmark_nall-1e43",
+    "20261019-121517-agg-benchmark_nall-3bcb",
+    "20261019-121600-agg-benchmark_nall-19d1"
+  ],
+  "repeats": [
+    3,
+    3,
+    3,
+    3
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "model_hash": "3ff0c715",
+  "params": {
+    "lake": "data/lake/events",
+    "top": 50,
+    "seed": 42,
+    "max_train": 300000,
+    "ngram_max": 1,
+    "max_features": 200000,
+    "model_out": "artifacts/tactic_model_unigram.joblib",
+    "results": "results/raw",
+    "tag": "unigram"
+  },
+  "most_frequent": {
+    "top1": 0.20279554607912817,
+    "top3": 0.4529732290926321,
+    "top5": 0.5669272684198058,
+    "top10": 0.7242359630419332,
+    "fit_s": 0.6030260509999152,
+    "n_train": 204205,
+    "n_test": 4221
+  },
+  "tfidf_sgd": {
+    "top1": 0.28547737502961384,
+    "top3": 0.538971807628524,
+    "top5": 0.6811182184316512,
+    "top10": 0.8445865908552476,
+    "fit_s": 102.33766178799999,
+    "n_train": 204205,
+    "n_test": 4221
+  }
+}

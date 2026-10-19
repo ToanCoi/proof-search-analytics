@@ -1,0 +1,32 @@
+{
+  "model_hash": "8f2498e4",
+  "params": {
+    "lake": "data/lake/events",
+    "top": 50,
+    "seed": 42,
+    "max_train": 300000,
+    "ngram_max": 2,
+    "max_features": 200000,
+    "model_out": "artifacts/tactic_model.joblib",
+    "results": "results/raw",
+    "tag": ""
+  },
+  "most_frequent": {
+    "top1": 0.20279554607912817,
+    "top3": 0.4529732290926321,
+    "top5": 0.5669272684198058,
+    "top10": 0.7242359630419332,
+    "fit_s": 0.6133199969999623,
+    "n_train": 204205,
+    "n_test": 4221
+  },
+  "tfidf_sgd": {
+    "top1": 0.3006396588486141,
+    "top3": 0.5695332859511963,
+    "top5": 0.6993603411513859,
+    "top10": 0.8507462686567164,
+    "fit_s": 242.024756141,
+    "n_train": 204205,
+    "n_test": 4221
+  }
+}
