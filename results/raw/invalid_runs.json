@@ -1,0 +1,24 @@
+{
+  "invalid_runs": [
+    {
+      "run_id": "20261019-121352-repl-baseline-S-fc75",
+      "reason": "Bug in src/search/live_repl.py before commit fixing it: a hard tactic timeout (exact? > 20 s) killed the REPL and every later call on that theorem was recorded as 'error' in ~0 ms without running Lean. Affected theorems: S 1, M 3, L 27, tau0.005 17, tau0.01 1. Runs also ran concurrently (up to 4 Lean processes), so latency-dependent outcomes are not comparable. Superseded by re-runs."
+    },
+    {
+      "run_id": "20261019-122842-repl-baseline-M-79c9",
+      "reason": "Bug in src/search/live_repl.py before commit fixing it: a hard tactic timeout (exact? > 20 s) killed the REPL and every later call on that theorem was recorded as 'error' in ~0 ms without running Lean. Affected theorems: S 1, M 3, L 27, tau0.005 17, tau0.01 1. Runs also ran concurrently (up to 4 Lean processes), so latency-dependent outcomes are not comparable. Superseded by re-runs."
+    },
+    {
+      "run_id": "20261019-124713-repl-baseline-L-2d5d",
+      "reason": "Bug in src/search/live_repl.py before commit fixing it: a hard tactic timeout (exact? > 20 s) killed the REPL and every later call on that theorem was recorded as 'error' in ~0 ms without running Lean. Affected theorems: S 1, M 3, L 27, tau0.005 17, tau0.01 1. Runs also ran concurrently (up to 4 Lean processes), so latency-dependent outcomes are not comparable. Superseded by re-runs."
+    },
+    {
+      "run_id": "20261019-124823-repl-prune-M-tau0005-20ed",
+      "reason": "Bug in src/search/live_repl.py before commit fixing it: a hard tactic timeout (exact? > 20 s) killed the REPL and every later call on that theorem was recorded as 'error' in ~0 ms without running Lean. Affected theorems: S 1, M 3, L 27, tau0.005 17, tau0.01 1. Runs also ran concurrently (up to 4 Lean processes), so latency-dependent outcomes are not comparable. Superseded by re-runs."
+    },
+    {
+      "run_id": "20261019-131716-repl-prune-M-tau001-37c4",
+      "reason": "Bug in src/search/live_repl.py before commit fixing it: a hard tactic timeout (exact? > 20 s) killed the REPL and every later call on that theorem was recorded as 'error' in ~0 ms without running Lean. Affected theorems: S 1, M 3, L 27, tau0.005 17, tau0.01 1. Runs also ran concurrently (up to 4 Lean processes), so latency-dependent outcomes are not comparable. Superseded by re-runs."
+    }
+  ]
+}

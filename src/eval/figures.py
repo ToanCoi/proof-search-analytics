@@ -100,14 +100,24 @@ def fig_predictor(raw: str, out: str):
            "seed": (m.get("params") or {}).get("seed")})
 
 
+def invalid_run_ids(raw: str) -> set[str]:
+    """Run bị loại (có ghi lý do) trong results/raw/invalid_runs.json — không đưa vào hình/bảng."""
+    path = os.path.join(raw, "invalid_runs.json")
+    if not os.path.exists(path):
+        return set()
+    with open(path, encoding="utf-8") as f:
+        return {r["run_id"] for r in json.load(f)["invalid_runs"]}
+
+
 def table_search_budget(runs: list[dict], out: str):
     rows = [{"run_id": r["run_id"], "data_version": r["data_version"],
              "budget_id": r["parameters"]["budget"]["budget_id"],
              "max_calls": r["parameters"]["budget"]["max_calls"],
              "timeout_s": r["parameters"]["budget"]["timeout_s"],
              "policy": r["parameters"].get("policy", "none"), "tau": r["parameters"].get("tau", 0.0),
-             **{k: r["metrics"][k] for k in ("n", "proof_success_rate", "avg_states_expanded",
-                                             "avg_lean_s", "avg_wall_s", "budget_exhausted_rate")}}
+             **{k: r["metrics"].get(k) for k in ("n", "proof_success_rate", "avg_states_expanded",
+                                                 "avg_lean_s", "avg_wall_s", "budget_exhausted_rate",
+                                                 "unknown_rate", "repl_restarts")}}
             for r in runs if r.get("kind") == "collect"]
     if rows:
         pd.DataFrame(rows).to_csv(os.path.join(out, "search_runs.csv"), index=False)
@@ -120,7 +130,9 @@ def main(argv=None):
     ap.add_argument("--out", default="results/figures")
     args = ap.parse_args(argv)
     os.makedirs(args.out, exist_ok=True)
-    runs = read_runs(os.path.join(args.raw, "runs.jsonl"))
+    bad = invalid_run_ids(args.raw)
+    runs = [r for r in read_runs(os.path.join(args.raw, "runs.jsonl"))
+            if r["run_id"] not in bad and r.get("data_version") not in bad]
     fig_pareto(args.raw, args.out)
     fig_scale(runs, args.out)
     fig_predictor(args.raw, args.out)

@@ -66,6 +66,7 @@ def run_one(job) -> dict:
     tau = float(cfg.get("tau", 0.0)) if policy else 0.0
     candidates = tuple(cfg.get("candidates") or CANDIDATES)
     t0 = time.perf_counter()
+    restarts0 = _REPL["s"].restarts if "s" in _REPL else 0
     try:
         events, status = _search(thm_meta, cfg, budget, policy, tau, candidates)
     except Exception as e:                     # không mở được định lý
@@ -84,7 +85,8 @@ def run_one(job) -> dict:
         name = "".join(c if c.isalnum() or c in "._-" else "_" for c in thm_meta["full_name"])[:150]
         pq.write_table(to_table(rows), os.path.join(staging, f"{name}.parquet"))
     return {"theorem_id": thm_meta["full_name"], "status": status, "states_expanded": len(events),
-            "lean_ms": sum(e["elapsed_ms"] for e in events), "wall_s": wall}
+            "lean_ms": sum(e["elapsed_ms"] for e in events), "wall_s": wall,
+            "repl_restarts": (_REPL["s"].restarts - restarts0) if "s" in _REPL else 0}
 
 
 def summarize(summary: list[dict]) -> dict:
@@ -95,6 +97,8 @@ def summarize(summary: list[dict]) -> dict:
             "avg_lean_s": sum(s["lean_ms"] for s in summary) / n / 1000,
             "avg_wall_s": sum(s["wall_s"] for s in summary) / n,
             "budget_exhausted_rate": sum(s["status"] == "budget_exhausted" for s in summary) / n,
+            "unknown_rate": sum(s["status"] == "unknown" for s in summary) / n,
+            "repl_restarts": sum(s.get("repl_restarts", 0) for s in summary),
             "init_error_rate": sum(s["status"].startswith("init_error") for s in summary) / n}
 
 

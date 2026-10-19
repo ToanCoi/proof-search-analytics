@@ -58,6 +58,10 @@ baseline-repl:   ## search no-pruning budget S/M/L trên miniF2F (LÂU — chạ
 	for b in S M L; do $(PY) src.search.collect --config configs/search_repl_baseline_$$b.yaml --lake $(LAKE) || exit 1; done
 	$(MAKE) manifest
 
+search-all:      ## baseline S/M/L + sweep + live tau, TUẦN TỰ (vài giờ) — log ở data/logs/search_all.log
+	mkdir -p data/logs
+	bash scripts/run_search_experiments.sh $(LAKE) 2>&1 | tee data/logs/search_all.log
+
 collect:         ## CONFIG=configs/xxx.yaml
 	$(PY) src.search.collect --config $(CONFIG) --lake $(LAKE)
 
