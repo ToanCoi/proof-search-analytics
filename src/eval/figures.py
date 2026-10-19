@@ -29,25 +29,39 @@ def _save(fig, path: str, meta: dict):
     print("->", path)
 
 
-def fig_pareto(raw: str, out: str):
+def fig_pareto(raw: str, out: str, runs: list[dict] = ()):
     for path in sorted(glob.glob(os.path.join(raw, "prune_sweep_*.csv"))):
         if path.endswith(("_per_theorem.csv", "_lost.csv")):
             continue
         d = pd.read_csv(path).sort_values("tau")
         fig, ax = plt.subplots(figsize=(6, 4))
-        ax.plot(d.avg_states_expanded, d.proof_success_rate, marker="o")
+        ax.plot(d.avg_states_expanded, d.proof_success_rate, marker="o", label="replay (ước lượng)")
+        # live check: run có policy, cùng budget với baseline nguồn
+        live = [r for r in runs if r.get("kind") == "collect"
+                and r["parameters"].get("policy", "none") != "none"
+                and r["parameters"]["budget"]["budget_id"] == d.budget_id.iloc[0]]
+        if live:
+            ax.scatter([r["metrics"]["avg_states_expanded"] for r in live],
+                       [r["metrics"]["proof_success_rate"] for r in live], marker="*", s=160,
+                       color="C3", zorder=3, label="live Lean")
+            for r in live:
+                ax.annotate(f"τ={r['parameters']['tau']:g} live",
+                            (r["metrics"]["avg_states_expanded"], r["metrics"]["proof_success_rate"]),
+                            fontsize=8, color="C3", xytext=(3, -10), textcoords="offset points")
+        ax.legend(loc="lower right", fontsize=8)
         for _, r in d.iterrows():
             ax.annotate(f"τ={r.tau:g}", (r.avg_states_expanded, r.proof_success_rate),
                         fontsize=8, xytext=(3, 3), textcoords="offset points")
         ax.set_xlabel("States expanded / theorem (cost)")
-        ax.set_ylabel("Proof success rate (replay)")
+        ax.set_ylabel("Proof success rate")
         run_id = os.path.basename(path)[len("prune_sweep_"):-4]
         ax.set_title(f"Pruning sweep — budget {d.budget_id.iloc[0]}, n={d.n.iloc[0]}")
         _save(fig, os.path.join(out, f"pareto_{run_id}.png"),
               {"source": path, "source_run": run_id, "repeats": int(d.repeats.iloc[0]),
                "budget": {"budget_id": d.budget_id.iloc[0], "max_calls": int(d.max_calls.iloc[0]),
                           "timeout_s": float(d.timeout_s.iloc[0])},
-               "model_hash": d.model_hash.iloc[0] if "model_hash" in d else None})
+               "model_hash": d.model_hash.iloc[0] if "model_hash" in d else None,
+               "live_runs": [r["run_id"] for r in live]})
 
 
 def fig_scale(runs: list[dict], out: str):
@@ -133,7 +147,7 @@ def main(argv=None):
     bad = invalid_run_ids(args.raw)
     runs = [r for r in read_runs(os.path.join(args.raw, "runs.jsonl"))
             if r["run_id"] not in bad and r.get("data_version") not in bad]
-    fig_pareto(args.raw, args.out)
+    fig_pareto(args.raw, args.out, runs)
     fig_scale(runs, args.out)
     fig_predictor(args.raw, args.out)
     table_search_budget(runs, args.out)

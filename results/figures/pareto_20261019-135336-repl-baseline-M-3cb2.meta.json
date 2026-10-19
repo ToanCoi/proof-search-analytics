@@ -1,0 +1,31 @@
+{
+  "machine": {
+    "cpu": "x86_64",
+    "cores": 8,
+    "ram_gb": 19.5,
+    "gpu": "none",
+    "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.36"
+  },
+  "software": {
+    "python": "3.11.17",
+    "spark": "3.5.3",
+    "pyarrow": "17.0.0",
+    "sklearn": "1.5.2",
+    "lean": "n/a",
+    "java": "openjdk version \"17.0.20.1\" 2026-08-18",
+    "lean_dojo": "2.2.0"
+  },
+  "source": "results/raw/prune_sweep_20261019-135336-repl-baseline-M-3cb2.csv",
+  "source_run": "20261019-135336-repl-baseline-M-3cb2",
+  "repeats": 3,
+  "budget": {
+    "budget_id": "M",
+    "max_calls": 200,
+    "timeout_s": 120.0
+  },
+  "model_hash": "8f2498e4",
+  "live_runs": [
+    "20261019-144105-repl-prune-M-tau0005-86d8",
+    "20261019-145826-repl-prune-M-tau001-564d"
+  ]
+}

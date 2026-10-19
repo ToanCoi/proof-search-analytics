@@ -109,6 +109,33 @@ Lean 4 + mathlib thật, cùng thuật toán/schema; *cost* — không cần tra
 
 Primary metrics: **proof success rate** (chất lượng) và **states expanded / định lý** (chi phí).
 
+## Kết quả hiện tại (19/10/2026)
+
+Số liệu lấy từ `results/figures/search_runs.csv`, `scale_aggregate.csv`, `results/raw/predictor_metrics.json`
+(sinh bằng `make figures`). Máy: 8 core, Docker/WSL 20 GB RAM, không dùng GPU. Search chạy tuần tự, 2 worker.
+
+**E3–E4: search miniF2F (100 bài, seed 42, Lean v4.9.0 + mathlib)**
+
+| Run | Budget | τ | Proof rate | States / bài | Wall s / bài |
+|---|---|---|---|---|---|
+| baseline | S (50 calls, 30 s) | 0 | 0.32 | 25.7 | 16.1 |
+| baseline | M (200 calls, 120 s) | 0 | 0.32 | 46.5 | 22.3 |
+| baseline | L (800 calls, 300 s) | 0 | 0.32 | 76.7 | 32.8 |
+| pruning live | M | 0.005 | 0.32 | 39.8 (−14%) | 20.5 |
+| pruning live | M | 0.01 | 0.32 | 31.2 (−33%) | 18.9 |
+
+- Tăng budget không chứng minh thêm bài nào. Các bài còn lại cần tactic ngoài danh sách cố định (vd `interval_cases`).
+- Replay dự đoán τ=0.01 còn 0.30. Live đạt 0.32 vì replay tính `unknown` là thất bại (ước lượng bảo thủ).
+  Từ τ≥0.02, replay cho thấy proof rate giảm nhanh (0.25 ở τ=0.02).
+
+**E2: predictor (Benchmark 4, test 4,221 bước):** most-frequent top-1/top-10 = 0.203/0.724;
+TF-IDF+SGD = 0.301/0.851; ablation unigram = 0.286/0.845.
+
+**E1: Spark:** runtime 26–33 s gần như không đổi từ 100 đến 50K định lý (213K event, lake 18 MB).
+Ở cỡ dữ liệu này chi phí cố định (JVM, lập lịch) lấn át; chưa đo được hiệu ứng mở rộng thật.
+
+**Run bị loại:** 5 run search đầu bị lỗi REPL (xem `results/raw/invalid_runs.json`), đã chạy lại sau khi sửa.
+
 ## Giới hạn đã biết
 
 - Search live chỉ ở quy mô ~100 định lý (Lean chậm); quy mô 1K–10K cho analytics dùng Benchmark 4.

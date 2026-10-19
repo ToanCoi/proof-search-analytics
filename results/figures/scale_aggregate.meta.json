@@ -27,12 +27,14 @@
     "20261019-121316-agg-benchmark_n10000-0b39",
     "20261019-121357-agg-benchmark_nall-1e43",
     "20261019-121517-agg-benchmark_nall-3bcb",
-    "20261019-121600-agg-benchmark_nall-19d1"
+    "20261019-121600-agg-benchmark_nall-19d1",
+    "20261019-151523-agg-search_nall-9c06"
   ],
   "repeats": [
     3,
     3,
     3,
-    3
+    3,
+    1
   ]
 }
