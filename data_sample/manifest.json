@@ -1,0 +1,26 @@
+{
+  "schema_version": "0.1.0",
+  "created": "2026-10-19T12:06:10",
+  "files": [
+    {
+      "path": "source=benchmark/budget_id=na/bench-test-b0000-0.parquet",
+      "rows": 198,
+      "bytes": 34141,
+      "sha256": "f6102dd543914a718c0f2359a5026c052485ba3b1cd455d42bd33588acad208b"
+    },
+    {
+      "path": "source=benchmark/budget_id=na/bench-train-b0000-0.parquet",
+      "rows": 192,
+      "bytes": 27606,
+      "sha256": "12a5882a46b2aeae12f275bacdc8fd7e2b588904624fd6dd6923c09e494e513c"
+    },
+    {
+      "path": "source=benchmark/budget_id=na/bench-val-b0000-0.parquet",
+      "rows": 286,
+      "bytes": 47700,
+      "sha256": "0e2142f5d3a3375ceacaa615bd4401bf94f6a384eae24a4f2638a1dbed8ee144"
+    }
+  ],
+  "total_rows": 676,
+  "total_bytes": 109447
+}

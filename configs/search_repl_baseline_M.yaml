@@ -8,7 +8,8 @@ require_mathlib: true
 theorems: data/selections/minif2f_100_s42.jsonl
 n_theorems: 100
 budget: {budget_id: M, max_calls: 200, timeout_s: 120, max_depth: 8}
-tactic_timeout_s: 20            # timeout cứng mỗi lời gọi tactic
+tactic_timeout_s: 20            # timeout cứng mỗi lời gọi (dự phòng; kill REPL)
+max_heartbeats: 200000          # thay "maxHeartbeats 0" của header miniF2F: tactic chậm báo lỗi tất định
 restart_every: 20               # khởi động lại REPL sau N định lý (REPL giữ mọi proof state trong RAM)
 workers: 2                      # mỗi worker 1 REPL đã import Mathlib, ~4-6 GB RAM
 seed: 42

@@ -6,6 +6,7 @@ Mỗi worker giữ 1 LeanServer: import header (vd `import Mathlib`) 1 lần th�
 """
 from __future__ import annotations
 
+import re
 import shutil
 import subprocess
 import time
@@ -82,7 +83,10 @@ class ReplSession:
         if not header.strip():
             return None
         if header not in self.envs:
-            res = self.server.run(Command(cmd=header), timeout=self.cfg.get("header_timeout_s", 900))
+            hb = self.cfg.get("max_heartbeats")
+            cmd = re.sub(r"set_option maxHeartbeats \d+", f"set_option maxHeartbeats {hb}", header) \
+                if hb is not None else header
+            res = self.server.run(Command(cmd=cmd), timeout=self.cfg.get("header_timeout_s", 900))
             if not hasattr(res, "env") or _has_error(res):
                 raise RuntimeError(f"header failed: {res}")
             self.envs[header] = res.env
@@ -115,6 +119,9 @@ class ReplSession:
         from lean_interact import Command
         env = self._env(header)
         cmd = statement.rstrip() + "\n  sorry"
+        hb = self.cfg.get("max_heartbeats")
+        if hb is not None:                     # áp cả vào proof state -> tactic chậm báo lỗi thay vì treo REPL
+            cmd = f"set_option maxHeartbeats {hb} in\n{cmd}"
         res = self.server.run(Command(cmd=cmd, env=env), timeout=self.cfg.get("open_timeout_s", 120))
         if not hasattr(res, "sorries") or _has_error(res) or not res.sorries:
             raise OpenError(f"cannot open theorem: {getattr(res, 'messages', res)}")

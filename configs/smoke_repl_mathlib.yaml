@@ -1,0 +1,19 @@
+# Chạy thử 5 bài miniF2F với mathlib (lần đầu tải mathlib build sẵn). Ghi vào lake riêng data/smoke.
+# Mọi so sánh pruning phải dùng CÙNG budget, tập định lý và danh sách candidates này.
+run_name: smoke-repl-mathlib
+data_version: minif2f-ds15@2c4ba91+lean-v4.9.0
+backend: repl
+lean_version: v4.9.0            # khớp phiên bản Lean mà bộ statement miniF2F này nhắm tới
+require_mathlib: true
+theorems: data/selections/minif2f_100_s42.jsonl
+n_theorems: 5
+budget: {budget_id: S, max_calls: 50, timeout_s: 30, max_depth: 8}
+tactic_timeout_s: 20            # timeout cứng mỗi lời gọi (dự phòng; kill REPL)
+max_heartbeats: 200000          # thay "maxHeartbeats 0" của header miniF2F: tactic chậm báo lỗi tất định
+restart_every: 20               # khởi động lại REPL sau N định lý (REPL giữ mọi proof state trong RAM)
+workers: 1
+seed: 42
+policy: none
+tau: 0.0
+candidates: [rfl, simp, norm_num, omega, ring, linarith, nlinarith, decide, positivity,
+             simp_all, aesop, intro h, constructor, "exact?"]
