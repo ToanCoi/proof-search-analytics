@@ -16,6 +16,9 @@ import time
 from src.common.runlog import log_run, new_run_id
 
 TABLES = ("tactic_stats", "branching", "per_theorem", "transitions", "position")
+# Chỉ đọc các cột cần cho tổng hợp (Parquet là columnar -> không đọc text state_before/after)
+COLS = ("run_id", "theorem_id", "step_idx", "parent_step_idx", "depth", "tactic", "outcome",
+        "elapsed_ms", "split", "domain", "budget_id", "policy", "tau")
 
 
 def get_spark(driver_memory: str = "6g", shuffle_partitions: int = 64):
@@ -33,6 +36,7 @@ def load_events(spark, lake: str, source: str, limit_theorems: int = 0, run_id: 
     from pyspark.sql import functions as F
     ev = (spark.read.parquet(lake)
           .filter(F.col("source") == source)                 # partition pruning
+          .select(*COLS)                                     # column pruning
           .withColumn("tactic_head", F.split(F.trim("tactic"), r"\s+").getItem(0)))
     if run_id:
         ev = ev.filter(F.col("run_id") == run_id)
@@ -90,6 +94,11 @@ def aggregate(ev) -> dict:
             "transitions": transitions, "position": position}
 
 
+def explain_string(df, mode: str = "formatted") -> str:
+    """Physical plan dạng text (như df.explain) để lưu vào results/raw."""
+    return df._sc._jvm.PythonSQLUtils.explainString(df._jdf.queryExecution(), mode)
+
+
 def lake_bytes(lake: str, source: str) -> int:
     root = pathlib.Path(lake) / f"source={source}"
     return sum(p.stat().st_size for p in root.rglob("*.parquet")) if root.exists() else 0
@@ -105,7 +114,9 @@ def main(argv=None):
     ap.add_argument("--driver-memory", default="6g")
     ap.add_argument("--shuffle-partitions", type=int, default=64)
     ap.add_argument("--repeat-idx", type=int, default=0, help="lần lặp (đo runtime ≥3 lần)")
-    ap.add_argument("--explain", action="store_true")
+    ap.add_argument("--explain", action="store_true", help="ghi physical plan vào results/raw/spark_plans")
+    ap.add_argument("--tag", default=None, help="tên thư mục output (mặc định suy từ source/limit)")
+    ap.add_argument("--replication", type=int, default=1, help="lake nhân bản ×k (scripts/replicate_lake.py)")
     args = ap.parse_args(argv)
 
     spark = get_spark(args.driver_memory, args.shuffle_partitions)
@@ -113,7 +124,7 @@ def main(argv=None):
     ev = load_events(spark, args.lake, args.source, args.limit_theorems, args.run_id).cache()
     n_events = ev.count()
     n_theorems = ev.select("run_id", "theorem_id").distinct().count()
-    tag = f"{args.source}_n{args.limit_theorems or 'all'}" + (f"_{args.run_id}" if args.run_id else "")
+    tag = args.tag or (f"{args.source}_n{args.limit_theorems or 'all'}" + (f"_{args.run_id}" if args.run_id else ""))
     out_dir = pathlib.Path(args.out) / tag
     out_dir.mkdir(parents=True, exist_ok=True)
     tables = aggregate(ev)
@@ -123,14 +134,18 @@ def main(argv=None):
         pdf.to_csv(out_dir / f"{name}.csv", index=False)
         sizes[name] = len(pdf)
     runtime = time.perf_counter() - t0
-    if args.explain:
-        tables["transitions"].explain()        # tìm Exchange (shuffle), BroadcastHashJoin
+    if args.explain:                           # plan trên DataFrame chưa cache: thấy được join/Exchange
+        plan_dir = pathlib.Path(args.out).parent / "spark_plans" / tag
+        plan_dir.mkdir(parents=True, exist_ok=True)
+        raw = aggregate(load_events(spark, args.lake, args.source, args.limit_theorems, args.run_id))
+        for name, df in raw.items():
+            (plan_dir / f"{name}.txt").write_text(explain_string(df), encoding="utf-8", newline="\n")
     metrics = {"events": n_events, "theorems": n_theorems, "runtime_s": runtime,
                "events_per_s": n_events / runtime if runtime else None,
                "lake_bytes": lake_bytes(args.lake, args.source), "rows_out": sizes,
                "spark_cores": spark.sparkContext.defaultParallelism}
     log_run(new_run_id(f"agg-{tag}"), "aggregate", vars(args), metrics, status="ok",
-            data_version="see data/lake/manifest.json")
+            data_version=f"see {pathlib.Path(args.lake).parent.as_posix()}/manifest.json")
     print(f"{tag}: {n_events} events, {n_theorems} theorems in {runtime:.1f}s -> {out_dir}")
     spark.stop()
 

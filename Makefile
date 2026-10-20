@@ -5,13 +5,14 @@ BENCH   ?= data/raw/leandojo_benchmark_4/random
 LAKE    ?= data/lake/events
 SCALES  ?= 100 1000 10000 0
 REPEATS ?= 3
+REPS    ?= 10 50
 N       ?= 100
 SEED    ?= 42
 SEL     := data/selections/thm_$(N)_s$(SEED).jsonl
 SEL_F2F := data/selections/minif2f_$(N)_s$(SEED).jsonl
 
 .PHONY: help test download ingest manifest sample sample-verify select baseline collect \
-        aggregate aggregate-search train ablation sweep figures dashboard \
+        aggregate aggregate-search replicate aggregate-rep train ablation sweep figures dashboard \
         fixture demo clean-demo
 
 help:            ## liệt kê target
@@ -67,7 +68,17 @@ collect:         ## CONFIG=configs/xxx.yaml
 
 aggregate:       ## Spark ở các mức quy mô SCALES, mỗi mức REPEATS lần
 	for n in $(SCALES); do for r in $$(seq 1 $(REPEATS)); do \
-	  $(PY) src.analytics.aggregate --lake $(LAKE) --limit-theorems $$n --repeat-idx $$r || exit 1; done; done
+	  $(PY) src.analytics.aggregate --lake $(LAKE) --limit-theorems $$n --repeat-idx $$r \
+	    $$([ $$r = 1 ] && echo --explain) || exit 1; done; done
+
+replicate:       ## lake nhân bản ×k (REPS) từ Benchmark — CHỈ để đo scale Spark, ghi rõ trong báo cáo
+	for k in $(REPS); do python scripts/replicate_lake.py --lake $(LAKE) --factor $$k --out data/lake_rep/x$$k/events || exit 1; \
+	  $(PY) src.lake.manifest --lake data/lake_rep/x$$k/events --out data/lake_rep/x$$k/manifest.json || exit 1; done
+
+aggregate-rep:   ## Spark trên lake nhân bản, mỗi mức REPEATS lần
+	for k in $(REPS); do for r in $$(seq 1 $(REPEATS)); do \
+	  $(PY) src.analytics.aggregate --lake data/lake_rep/x$$k/events --tag benchmark_rep_x$$k \
+	    --replication $$k --repeat-idx $$r || exit 1; done; done
 
 aggregate-search: ## Spark trên trace search (RUN=<run_id> tùy chọn)
 	$(PY) src.analytics.aggregate --lake $(LAKE) --source search $(if $(RUN),--run-id $(RUN))

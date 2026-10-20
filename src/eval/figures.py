@@ -31,7 +31,7 @@ def _save(fig, path: str, meta: dict):
 
 def fig_pareto(raw: str, out: str, runs: list[dict] = ()):
     for path in sorted(glob.glob(os.path.join(raw, "prune_sweep_*.csv"))):
-        if path.endswith(("_per_theorem.csv", "_lost.csv")):
+        if path.endswith(("_per_theorem.csv", "_lost.csv", "_proof_paths.csv")):
             continue
         d = pd.read_csv(path).sort_values("tau")
         fig, ax = plt.subplots(figsize=(6, 4))
@@ -66,6 +66,7 @@ def fig_pareto(raw: str, out: str, runs: list[dict] = ()):
 
 def fig_scale(runs: list[dict], out: str):
     rows = [{"source": r["parameters"]["source"], "limit": r["parameters"]["limit_theorems"],
+             "replication": r["parameters"].get("replication", 1),
              "theorems": r["metrics"]["theorems"], "events": r["metrics"]["events"],
              "runtime_s": r["metrics"]["runtime_s"], "events_per_s": r["metrics"]["events_per_s"],
              "lake_bytes": r["metrics"]["lake_bytes"], "run_id": r["run_id"]}
@@ -73,7 +74,7 @@ def fig_scale(runs: list[dict], out: str):
     if not rows:
         return
     d = pd.DataFrame(rows)
-    table = (d.groupby(["source", "limit", "theorems", "events"])
+    table = (d.groupby(["source", "replication", "limit", "theorems", "events"])
              .agg(runtime_median=("runtime_s", "median"), runtime_min=("runtime_s", "min"),
                   runtime_max=("runtime_s", "max"), events_per_s_median=("events_per_s", "median"),
                   repeats=("runtime_s", "size"), lake_bytes=("lake_bytes", "max"))
@@ -81,17 +82,20 @@ def fig_scale(runs: list[dict], out: str):
     table.to_csv(os.path.join(out, "scale_aggregate.csv"), index=False)
     print("-> scale_aggregate.csv\n", table.to_string(index=False))
     fig, ax = plt.subplots(figsize=(6, 4))
-    for src, g in table.groupby("source"):
+    for (src, rep), g in table.groupby(["source", table.replication > 1]):
+        label = f"{src} (replicated ×{'/'.join(map(str, g.replication))})" if rep else src
         ax.errorbar(g.events.to_numpy(), g.runtime_median.to_numpy(),
                     yerr=[(g.runtime_median - g.runtime_min).to_numpy(),
                           (g.runtime_max - g.runtime_median).to_numpy()],
-                    marker="o", capsize=3, label=src)
+                    marker="s" if rep else "o", mfc="none" if rep else None, ls="--" if rep else "-",
+                    capsize=3, label=label)
     ax.set_xscale("log")
     ax.set_xlabel("Events (log)")
     ax.set_ylabel("Spark aggregation runtime (s), median [min–max]")
-    ax.legend()
+    ax.legend(fontsize=8)
     _save(fig, os.path.join(out, "scale_aggregate.png"),
-          {"source_runs": d.run_id.tolist(), "repeats": table.repeats.tolist()})
+          {"source_runs": d.run_id.tolist(), "repeats": table.repeats.tolist(),
+           "note": "replication>1 = lake nhân bản (scripts/replicate_lake.py), chỉ dùng đo runtime"})
 
 
 def fig_predictor(raw: str, out: str):
@@ -114,6 +118,39 @@ def fig_predictor(raw: str, out: str):
            "seed": (m.get("params") or {}).get("seed")})
 
 
+def table_pruning_losses(raw: str, out: str):
+    """Bài baseline chứng minh được nhưng mất khi prune: nguyên nhân + domain (từ prune_sweep)."""
+    for lost_path in sorted(glob.glob(os.path.join(raw, "prune_sweep_*_lost.csv"))):
+        run_id = os.path.basename(lost_path)[len("prune_sweep_"):-len("_lost.csv")]
+        paths_csv = os.path.join(raw, f"prune_sweep_{run_id}_proof_paths.csv")
+        if not os.path.exists(paths_csv):
+            continue
+        budget = pd.read_csv(os.path.join(raw, f"prune_sweep_{run_id}.csv")).budget_id.iloc[0]
+        lost, paths = pd.read_csv(lost_path), pd.read_csv(paths_csv)
+        info = paths.groupby("theorem_id").agg(domain=("domain", "first"), path=("path", "first"),
+                                               min_score=("min_score", "first"))
+        rows = []
+        for _, r in lost.iterrows():
+            steps = paths[paths.theorem_id == r.theorem_id]
+            cut = steps[steps.score < r.tau]
+            i = info.loc[r.theorem_id]
+            rows.append({"tau": r.tau, "theorem_id": r.theorem_id, "domain": i.domain,
+                         "replay_status": r.status, "baseline_proof": i.path,
+                         "min_path_score": i.min_score,
+                         "pruned_proof_tactics": " ; ".join(cut.tactic) if len(cut) else "",
+                         "cause": "proof tactic pruned" if len(cut) else
+                                  ("left baseline trace (unknown)" if r.status == "unknown" else "budget on other branch")})
+        d = pd.DataFrame(rows)
+        d.to_csv(os.path.join(out, f"pruning_losses_{budget}.csv"), index=False)
+        if not d.empty:
+            (d.groupby(["tau", "cause"]).size().unstack(fill_value=0)
+             .to_csv(os.path.join(out, f"pruning_losses_{budget}_by_cause.csv")))
+            n_dom = info.domain.value_counts().rename("proved_baseline")
+            (d.groupby(["tau", "domain"]).size().unstack(0, fill_value=0).join(n_dom, how="right")
+             .fillna(0).astype(int).to_csv(os.path.join(out, f"pruning_losses_{budget}_by_domain.csv")))
+        print(f"-> pruning_losses_{budget}.csv")
+
+
 def invalid_run_ids(raw: str) -> set[str]:
     """Run bị loại (có ghi lý do) trong results/raw/invalid_runs.json — không đưa vào hình/bảng."""
     path = os.path.join(raw, "invalid_runs.json")
@@ -124,7 +161,7 @@ def invalid_run_ids(raw: str) -> set[str]:
 
 
 def table_search_budget(runs: list[dict], out: str):
-    rows = [{"run_id": r["run_id"], "data_version": r["data_version"],
+    rows = [{"run_id": r["run_id"], "run_name": r["parameters"]["run_name"], "data_version": r["data_version"],
              "budget_id": r["parameters"]["budget"]["budget_id"],
              "max_calls": r["parameters"]["budget"]["max_calls"],
              "timeout_s": r["parameters"]["budget"]["timeout_s"],
@@ -133,9 +170,17 @@ def table_search_budget(runs: list[dict], out: str):
                                                  "avg_lean_s", "avg_wall_s", "budget_exhausted_rate",
                                                  "unknown_rate", "repl_restarts")}}
             for r in runs if r.get("kind") == "collect"]
-    if rows:
-        pd.DataFrame(rows).to_csv(os.path.join(out, "search_runs.csv"), index=False)
-        print("-> search_runs.csv")
+    if not rows:
+        return
+    d = pd.DataFrame(rows)
+    d.to_csv(os.path.join(out, "search_runs.csv"), index=False)
+    # lặp lại cùng config -> median [min–max] (wall time phụ thuộc độ trễ Lean)
+    agg = {f"{m}_{f}": (m, f) for m in ("proof_success_rate", "avg_states_expanded", "avg_wall_s")
+           for f in ("median", "min", "max")}
+    summary = (d.groupby(["run_name", "budget_id", "policy", "tau"])
+               .agg(repeats=("run_id", "size"), **agg).reset_index())
+    summary.to_csv(os.path.join(out, "search_summary.csv"), index=False)
+    print("-> search_runs.csv, search_summary.csv\n", summary.to_string(index=False))
 
 
 def main(argv=None):
@@ -151,6 +196,7 @@ def main(argv=None):
     fig_scale(runs, args.out)
     fig_predictor(args.raw, args.out)
     table_search_budget(runs, args.out)
+    table_pruning_losses(args.raw, args.out)
 
 
 if __name__ == "__main__":

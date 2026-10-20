@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.eval.prune_sweep import sweep
+from src.eval.prune_sweep import proof_paths, sweep
 from src.search.core import Budget, best_first
 from src.search.replay import make_replay_apply, root_state
 from src.search.toy import make_toy_apply, toy_init_state
@@ -33,3 +33,14 @@ def test_sweep_monotone_cost_and_lost_list():
     assert rows.avg_states_expanded.iloc[1] <= rows.avg_states_expanded.iloc[0] + 1e-9 or \
         rows.unknown_rate.iloc[1] > 0
     assert set(lost.theorem_id) <= set(per_thm.theorem_id)
+
+
+def test_proof_paths_follow_parents_to_finished():
+    ev = pd.concat([_trace(f"T{i}")[0] for i in range(20)], ignore_index=True).assign(domain="toy")
+    paths = proof_paths(ev, lambda s, t: 0.5)
+    assert not paths.empty
+    for thm, g in paths.groupby("theorem_id"):
+        t = ev[ev.theorem_id == thm]
+        assert g.tactic.iloc[-1] == t[t.outcome == "finished"].tactic.iloc[0]
+        assert list(g.step) == list(range(len(g)))
+        assert (g.min_score == 0.5).all()

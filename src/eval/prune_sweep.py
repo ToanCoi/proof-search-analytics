@@ -78,6 +78,31 @@ def sweep(ev: pd.DataFrame, policy, taus: list[float], repeats: int = 3,
     return pd.DataFrame(rows), per_thm, lost
 
 
+def proof_paths(ev: pd.DataFrame, policy) -> pd.DataFrame:
+    """Đường chứng minh của run gốc (từ gốc tới event 'finished') + điểm policy của từng bước.
+
+    Bài bị mất ở ngưỡng tau mà min_score < tau là do pruning cắt đúng tactic cần thiết;
+    còn lại là do replay rời khỏi trace (unknown) hoặc hết budget theo đường khác.
+    """
+    rows = []
+    for thm, g in ev.groupby("theorem_id"):
+        by_step = g.set_index("step_idx")
+        fin = g[g.outcome == "finished"]
+        if fin.empty:
+            continue
+        path, step = [], int(fin.step_idx.iloc[0])
+        while step is not None:
+            e = by_step.loc[step]
+            path.append(e)
+            step = None if pd.isna(e.parent_step_idx) else int(e.parent_step_idx)
+        path.reverse()
+        scores = [policy(e.state_before, e.tactic) for e in path]
+        rows += [{"theorem_id": thm, "domain": g.domain.iloc[0], "step": i, "tactic": e.tactic,
+                  "score": sc, "min_score": min(scores), "path": " ; ".join(p.tactic for p in path)}
+                 for i, (e, sc) in enumerate(zip(path, scores))]
+    return pd.DataFrame(rows)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--lake", default="data/lake/events")
@@ -110,6 +135,8 @@ def main(argv=None):
     rows.to_csv(out, index=False)
     per_thm.to_csv(os.path.join(args.results, f"prune_sweep_{args.run_id}_per_theorem.csv"), index=False)
     lost.to_csv(os.path.join(args.results, f"prune_sweep_{args.run_id}_lost.csv"), index=False)
+    proof_paths(ev, load_policy(args.model)).to_csv(
+        os.path.join(args.results, f"prune_sweep_{args.run_id}_proof_paths.csv"), index=False)
     log_run(new_run_id("sweep"), "sweep", vars(args), {"file": out, "rows": rows.to_dict("records")},
             status="ok", data_version=args.run_id, timeout=budget_of(ev).as_dict())
 
