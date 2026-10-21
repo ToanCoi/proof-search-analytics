@@ -1,0 +1,15 @@
+tactic_head,finished,progress,duplicate,error,unknown
+aesop,0,521,692,1033,0
+constructor,0,459,61,1337,0
+decide,0,1,66,2208,0
+exact?,0,1,75,2168,0
+intro,0,212,12,1885,0
+linarith,40,0,28,2062,0
+nlinarith,16,38,44,2194,0
+norm_num,35,96,2094,0,0
+omega,49,0,29,2330,0
+positivity,0,0,29,2226,0
+rfl,70,0,21,2062,0
+ring,7,541,1663,0,0
+simp,0,286,198,1958,0
+simp_all,7,263,486,1497,0

@@ -1,0 +1,88 @@
+== Physical Plan ==
+AdaptiveSparkPlan (15)
++- Sort (14)
+   +- Exchange (13)
+      +- HashAggregate (12)
+         +- Exchange (11)
+            +- HashAggregate (10)
+               +- Project (9)
+                  +- Window (8)
+                     +- Sort (7)
+                        +- Exchange (6)
+                           +- InMemoryTableScan (1)
+                                 +- InMemoryRelation (2)
+                                       +- * Project (5)
+                                          +- * ColumnarToRow (4)
+                                             +- Scan parquet  (3)
+
+
+(1) InMemoryTableScan
+Output [4]: [run_id#3324, theorem_id#3327, step_idx#3330, tactic_head#3385]
+Arguments: [run_id#3324, theorem_id#3327, step_idx#3330, tactic_head#3385]
+
+(2) InMemoryRelation
+Arguments: [run_id#3324, theorem_id#3327, step_idx#3330, parent_step_idx#3331, depth#3332, tactic#3334, outcome#3338, elapsed_ms#3339, split#3326, domain#3329, budget_id#3346, policy#3343, tau#3344, tactic_head#3385], CachedRDDBuilder(org.apache.spark.sql.execution.columnar.DefaultCachedBatchSerializer@5b99497a,StorageLevel(disk, memory, deserialized, 1 replicas),*(1) Project [run_id#1, theorem_id#4, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, split#3, domain#6, budget_id#23, policy#20, tau#21, split(trim(tactic#11, None), \s+, -1)[0] AS tactic_head#62]
++- *(1) ColumnarToRow
+   +- FileScan parquet [run_id#1,split#3,theorem_id#4,domain#6,step_idx#7,parent_step_idx#8,depth#9,tactic#11,outcome#15,elapsed_ms#16,policy#20,tau#21,source#22,budget_id#23] Batched: true, DataFilters: [], Format: Parquet, Location: InMemoryFileIndex(1 paths)[file:/work/data/lake/events], PartitionFilters: [isnotnull(source#22), (source#22 = benchmark)], PushedFilters: [], ReadSchema: struct<run_id:string,split:string,theorem_id:string,domain:string,step_idx:int,parent_step_idx:in...
+,None)
+
+(3) Scan parquet 
+Output [14]: [run_id#1, split#3, theorem_id#4, domain#6, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, policy#20, tau#21, source#22, budget_id#23]
+Batched: true
+Location: InMemoryFileIndex [file:/work/data/lake/events]
+PartitionFilters: [isnotnull(source#22), (source#22 = benchmark)]
+ReadSchema: struct<run_id:string,split:string,theorem_id:string,domain:string,step_idx:int,parent_step_idx:int,depth:int,tactic:string,outcome:string,elapsed_ms:float,policy:string,tau:float>
+
+(4) ColumnarToRow [codegen id : 1]
+Input [14]: [run_id#1, split#3, theorem_id#4, domain#6, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, policy#20, tau#21, source#22, budget_id#23]
+
+(5) Project [codegen id : 1]
+Output [14]: [run_id#1, theorem_id#4, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, split#3, domain#6, budget_id#23, policy#20, tau#21, split(trim(tactic#11, None), \s+, -1)[0] AS tactic_head#62]
+Input [14]: [run_id#1, split#3, theorem_id#4, domain#6, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, policy#20, tau#21, source#22, budget_id#23]
+
+(6) Exchange
+Input [4]: [run_id#3324, theorem_id#3327, step_idx#3330, tactic_head#3385]
+Arguments: hashpartitioning(run_id#3324, theorem_id#3327, 64), ENSURE_REQUIREMENTS, [plan_id=1251]
+
+(7) Sort
+Input [4]: [run_id#3324, theorem_id#3327, step_idx#3330, tactic_head#3385]
+Arguments: [run_id#3324 ASC NULLS FIRST, theorem_id#3327 ASC NULLS FIRST, step_idx#3330 ASC NULLS FIRST], false, 0
+
+(8) Window
+Input [4]: [run_id#3324, theorem_id#3327, step_idx#3330, tactic_head#3385]
+Arguments: [lag(tactic_head#3385, -1, null) windowspecdefinition(run_id#3324, theorem_id#3327, step_idx#3330 ASC NULLS FIRST, specifiedwindowframe(RowFrame, -1, -1)) AS _we0#3598], [run_id#3324, theorem_id#3327], [step_idx#3330 ASC NULLS FIRST]
+
+(9) Project
+Output [2]: [tactic_head#3385, coalesce(_we0#3598, <start>) AS prev_in_order#3597]
+Input [5]: [run_id#3324, theorem_id#3327, step_idx#3330, tactic_head#3385, _we0#3598]
+
+(10) HashAggregate
+Input [2]: [tactic_head#3385, prev_in_order#3597]
+Keys [2]: [prev_in_order#3597, tactic_head#3385]
+Functions [1]: [partial_count(1)]
+Aggregate Attributes [1]: [count#4932L]
+Results [3]: [prev_in_order#3597, tactic_head#3385, count#4933L]
+
+(11) Exchange
+Input [3]: [prev_in_order#3597, tactic_head#3385, count#4933L]
+Arguments: hashpartitioning(prev_in_order#3597, tactic_head#3385, 64), ENSURE_REQUIREMENTS, [plan_id=1257]
+
+(12) HashAggregate
+Input [3]: [prev_in_order#3597, tactic_head#3385, count#4933L]
+Keys [2]: [prev_in_order#3597, tactic_head#3385]
+Functions [1]: [count(1)]
+Aggregate Attributes [1]: [count(1)#3629L]
+Results [3]: [prev_in_order#3597, tactic_head#3385, count(1)#3629L AS count#3630L]
+
+(13) Exchange
+Input [3]: [prev_in_order#3597, tactic_head#3385, count#3630L]
+Arguments: rangepartitioning(count#3630L DESC NULLS LAST, prev_in_order#3597 ASC NULLS FIRST, tactic_head#3385 ASC NULLS FIRST, 64), ENSURE_REQUIREMENTS, [plan_id=1260]
+
+(14) Sort
+Input [3]: [prev_in_order#3597, tactic_head#3385, count#3630L]
+Arguments: [count#3630L DESC NULLS LAST, prev_in_order#3597 ASC NULLS FIRST, tactic_head#3385 ASC NULLS FIRST], true, 0
+
+(15) AdaptiveSparkPlan
+Output [3]: [prev_in_order#3597, tactic_head#3385, count#3630L]
+Arguments: isFinalPlan=false
+

@@ -11,7 +11,7 @@
     "spark": "3.5.3",
     "pyarrow": "17.0.0",
     "sklearn": "1.5.2",
-    "lean": "n/a",
+    "lean": "Lean (version 4.9.0, x86_64-unknown-linux-gnu, commit 8f9843a4a5fe, Release)",
     "java": "openjdk version \"17.0.20.1\" 2026-08-18",
     "lean_dojo": "2.2.0"
   },

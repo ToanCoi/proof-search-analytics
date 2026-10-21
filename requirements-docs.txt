@@ -1,0 +1,6 @@
+# Sinh report.docx và slides/slides.pptx (scripts/build_report.py, scripts/build_slides.py).
+# Chạy được trên máy host (không cần Spark/Lean) vì chỉ đọc results/ và đọc lake bằng pyarrow.
+pandas>=2.2
+pyarrow>=17
+python-docx==1.2.0
+python-pptx==1.0.2

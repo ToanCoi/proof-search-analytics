@@ -47,7 +47,7 @@ def fig_pareto(raw: str, out: str, runs: list[dict] = ()):
             for r in live:
                 ax.annotate(f"τ={r['parameters']['tau']:g} live",
                             (r["metrics"]["avg_states_expanded"], r["metrics"]["proof_success_rate"]),
-                            fontsize=8, color="C3", xytext=(3, -10), textcoords="offset points")
+                            fontsize=8, color="C3", xytext=(-8, -16), textcoords="offset points")
         ax.legend(loc="lower right", fontsize=8)
         for _, r in d.iterrows():
             ax.annotate(f"τ={r.tau:g}", (r.avg_states_expanded, r.proof_success_rate),
@@ -96,6 +96,32 @@ def fig_scale(runs: list[dict], out: str):
     _save(fig, os.path.join(out, "scale_aggregate.png"),
           {"source_runs": d.run_id.tolist(), "repeats": table.repeats.tolist(),
            "note": "replication>1 = lake nhân bản (scripts/replicate_lake.py), chỉ dùng đo runtime"})
+
+
+def fig_search_behavior(raw: str, out: str, tag: str = "search_nall"):
+    """Phân bố kết quả mỗi tactic + branching theo độ sâu trên trace search (bảng Spark trong agg/<tag>)."""
+    base = os.path.join(raw, "agg", tag)
+    if not os.path.exists(os.path.join(base, "outcomes.csv")):
+        return
+    oc = pd.read_csv(os.path.join(base, "outcomes.csv")).set_index("tactic_head")
+    cols = [c for c in ("finished", "progress", "duplicate", "error", "unknown") if c in oc and oc[c].sum() > 0]
+    share = oc[cols].div(oc[cols].sum(axis=1), axis=0).sort_values(["error", "duplicate"])
+    br = pd.read_csv(os.path.join(base, "branching.csv"))
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(10, 4), gridspec_kw={"width_ratios": [3, 2]})
+    colors = {"finished": "#2e7d32", "progress": "#64b5f6", "duplicate": "#ffb74d", "error": "#c62828",
+              "unknown": "#9e9e9e"}
+    left = pd.Series(0.0, index=share.index)
+    for c in cols:
+        a1.barh(share.index, share[c], left=left, color=colors[c], label=c)
+        left += share[c]
+    a1.set_xlabel("Share of tactic calls")
+    a1.legend(fontsize=8, ncol=len(cols), loc="lower center", bbox_to_anchor=(0.5, 1.0), frameon=False)
+    a2.plot(br.depth, br.avg_tried, marker="o", label="calls per expanded state")
+    a2.plot(br.depth, br.avg_branching, marker="s", label="new children (progress)")
+    a2.set_xlabel("Depth")
+    a2.legend(fontsize=8)
+    _save(fig, os.path.join(out, "search_behavior.png"),
+          {"source": base, "n_calls": int(oc[cols].to_numpy().sum())})
 
 
 def fig_predictor(raw: str, out: str):
@@ -152,12 +178,13 @@ def table_pruning_losses(raw: str, out: str):
 
 
 def invalid_run_ids(raw: str) -> set[str]:
-    """Run bị loại (có ghi lý do) trong results/raw/invalid_runs.json — không đưa vào hình/bảng."""
+    """Run bị loại hoặc bị thay thế (có ghi lý do) trong results/raw/invalid_runs.json — không đưa vào hình/bảng."""
     path = os.path.join(raw, "invalid_runs.json")
     if not os.path.exists(path):
         return set()
     with open(path, encoding="utf-8") as f:
-        return {r["run_id"] for r in json.load(f)["invalid_runs"]}
+        j = json.load(f)
+    return {r["run_id"] for r in j["invalid_runs"] + j.get("superseded_runs", [])}
 
 
 def table_search_budget(runs: list[dict], out: str):
@@ -194,6 +221,7 @@ def main(argv=None):
             if r["run_id"] not in bad and r.get("data_version") not in bad]
     fig_pareto(args.raw, args.out, runs)
     fig_scale(runs, args.out)
+    fig_search_behavior(args.raw, args.out)
     fig_predictor(args.raw, args.out)
     table_search_budget(runs, args.out)
     table_pruning_losses(args.raw, args.out)

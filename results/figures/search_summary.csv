@@ -1,0 +1,6 @@
+run_name,budget_id,policy,tau,repeats,proof_success_rate_median,proof_success_rate_min,proof_success_rate_max,avg_states_expanded_median,avg_states_expanded_min,avg_states_expanded_max,avg_wall_s_median,avg_wall_s_min,avg_wall_s_max
+repl-baseline-L,L,none,0.0,1,0.32,0.32,0.32,76.71,76.71,76.71,32.79438380185996,32.79438380185996,32.79438380185996
+repl-baseline-M,M,none,0.0,3,0.32,0.32,0.32,46.51,44.51,46.54,26.681333436110002,22.25661899425001,36.616054795890015
+repl-baseline-S,S,none,0.0,1,0.32,0.32,0.32,25.74,25.74,25.74,16.10536243624998,16.10536243624998,16.10536243624998
+repl-prune-M-tau0005,M,artifacts/tactic_model.joblib,0.005,1,0.32,0.32,0.32,39.83,39.83,39.83,20.461277550400084,20.461277550400084,20.461277550400084
+repl-prune-M-tau001,M,artifacts/tactic_model.joblib,0.01,1,0.32,0.32,0.32,31.16,31.16,31.16,18.922949854020118,18.922949854020118,18.922949854020118

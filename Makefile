@@ -12,7 +12,7 @@ SEL     := data/selections/thm_$(N)_s$(SEED).jsonl
 SEL_F2F := data/selections/minif2f_$(N)_s$(SEED).jsonl
 
 .PHONY: help test download ingest manifest sample sample-verify select baseline collect \
-        aggregate aggregate-search replicate aggregate-rep train ablation sweep figures dashboard \
+        aggregate aggregate-search replicate aggregate-rep train ablation sweep figures report dashboard \
         fixture demo clean-demo
 
 help:            ## liệt kê target
@@ -95,6 +95,10 @@ sweep:           ## RUN=<run_id no-pruning>
 
 figures:         ## mọi hình/bảng từ results/raw
 	$(PY) src.eval.figures
+
+report:          ## report.docx + slides/slides.pptx từ results/ (cần requirements-docs.txt; chạy được trên host)
+	python scripts/build_report.py
+	python scripts/build_slides.py
 
 dashboard:
 	streamlit run app/dashboard.py --server.address 0.0.0.0 --server.port 8501

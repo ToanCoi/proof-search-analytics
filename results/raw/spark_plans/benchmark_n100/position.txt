@@ -1,0 +1,277 @@
+== Physical Plan ==
+AdaptiveSparkPlan (42)
++- Sort (41)
+   +- Exchange (40)
+      +- HashAggregate (39)
+         +- Exchange (38)
+            +- HashAggregate (37)
+               +- Project (36)
+                  +- Window (35)
+                     +- Sort (34)
+                        +- Exchange (33)
+                           +- InMemoryTableScan (1)
+                                 +- InMemoryRelation (2)
+                                       +- AdaptiveSparkPlan (32)
+                                          +- == Final Plan ==
+                                             * Project (20)
+                                             +- * BroadcastHashJoin Inner BuildRight (19)
+                                                :- * Project (6)
+                                                :  +- * Filter (5)
+                                                :     +- * ColumnarToRow (4)
+                                                :        +- Scan parquet  (3)
+                                                +- BroadcastQueryStage (18), Statistics(sizeInBytes=16.0 MiB, rowCount=100)
+                                                   +- BroadcastExchange (17)
+                                                      +- * Filter (16)
+                                                         +- TakeOrderedAndProject (15)
+                                                            +- * HashAggregate (14)
+                                                               +- AQEShuffleRead (13)
+                                                                  +- ShuffleQueryStage (12), Statistics(sizeInBytes=2.3 MiB, rowCount=5.00E+4)
+                                                                     +- Exchange (11)
+                                                                        +- * HashAggregate (10)
+                                                                           +- * Project (9)
+                                                                              +- * ColumnarToRow (8)
+                                                                                 +- Scan parquet  (7)
+                                          +- == Initial Plan ==
+                                             Project (31)
+                                             +- BroadcastHashJoin Inner BuildRight (30)
+                                                :- Project (22)
+                                                :  +- Filter (21)
+                                                :     +- Scan parquet  (3)
+                                                +- BroadcastExchange (29)
+                                                   +- Filter (28)
+                                                      +- TakeOrderedAndProject (27)
+                                                         +- HashAggregate (26)
+                                                            +- Exchange (25)
+                                                               +- HashAggregate (24)
+                                                                  +- Project (23)
+                                                                     +- Scan parquet  (7)
+
+
+(1) InMemoryTableScan
+Output [4]: [theorem_id#3392, run_id#3389, step_idx#3395, tactic_head#3450]
+Arguments: [theorem_id#3392, run_id#3389, step_idx#3395, tactic_head#3450]
+
+(2) InMemoryRelation
+Arguments: [theorem_id#3392, run_id#3389, step_idx#3395, parent_step_idx#3396, depth#3397, tactic#3399, outcome#3403, elapsed_ms#3404, split#3391, domain#3394, budget_id#3411, policy#3408, tau#3409, tactic_head#3450], CachedRDDBuilder(org.apache.spark.sql.execution.columnar.DefaultCachedBatchSerializer@3adf47d2,StorageLevel(disk, memory, deserialized, 1 replicas),AdaptiveSparkPlan isFinalPlan=true
++- == Final Plan ==
+   *(4) Project [theorem_id#4, run_id#1, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, split#3, domain#6, budget_id#23, policy#20, tau#21, tactic_head#62]
+   +- *(4) BroadcastHashJoin [theorem_id#4], [theorem_id#82], Inner, BuildRight, false
+      :- *(4) Project [run_id#1, theorem_id#4, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, split#3, domain#6, budget_id#23, policy#20, tau#21, split(trim(tactic#11, None), \s+, -1)[0] AS tactic_head#62]
+      :  +- *(4) Filter isnotnull(theorem_id#4)
+      :     +- *(4) ColumnarToRow
+      :        +- FileScan parquet [run_id#1,split#3,theorem_id#4,domain#6,step_idx#7,parent_step_idx#8,depth#9,tactic#11,outcome#15,elapsed_ms#16,policy#20,tau#21,source#22,budget_id#23] Batched: true, DataFilters: [isnotnull(theorem_id#4)], Format: Parquet, Location: InMemoryFileIndex(1 paths)[file:/work/data/lake/events], PartitionFilters: [isnotnull(source#22), (source#22 = benchmark)], PushedFilters: [IsNotNull(theorem_id)], ReadSchema: struct<run_id:string,split:string,theorem_id:string,domain:string,step_idx:int,parent_step_idx:in...
+      +- BroadcastQueryStage 1
+         +- BroadcastExchange HashedRelationBroadcastMode(List(input[0, string, false]),false), [plan_id=146]
+            +- *(3) Filter isnotnull(theorem_id#82)
+               +- TakeOrderedAndProject(limit=100, orderBy=[theorem_id#82 ASC NULLS FIRST], output=[theorem_id#82])
+                  +- *(2) HashAggregate(keys=[theorem_id#82], functions=[], output=[theorem_id#82])
+                     +- AQEShuffleRead coalesced
+                        +- ShuffleQueryStage 0
+                           +- Exchange hashpartitioning(theorem_id#82, 64), ENSURE_REQUIREMENTS, [plan_id=89]
+                              +- *(1) HashAggregate(keys=[theorem_id#82], functions=[], output=[theorem_id#82])
+                                 +- *(1) Project [theorem_id#82]
+                                    +- *(1) ColumnarToRow
+                                       +- FileScan parquet [theorem_id#82,source#100,budget_id#101] Batched: true, DataFilters: [], Format: Parquet, Location: InMemoryFileIndex(1 paths)[file:/work/data/lake/events], PartitionFilters: [isnotnull(source#100), (source#100 = benchmark)], PushedFilters: [], ReadSchema: struct<theorem_id:string>
++- == Initial Plan ==
+   Project [theorem_id#4, run_id#1, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, split#3, domain#6, budget_id#23, policy#20, tau#21, tactic_head#62]
+   +- BroadcastHashJoin [theorem_id#4], [theorem_id#82], Inner, BuildRight, false
+      :- Project [run_id#1, theorem_id#4, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, split#3, domain#6, budget_id#23, policy#20, tau#21, split(trim(tactic#11, None), \s+, -1)[0] AS tactic_head#62]
+      :  +- Filter isnotnull(theorem_id#4)
+      :     +- FileScan parquet [run_id#1,split#3,theorem_id#4,domain#6,step_idx#7,parent_step_idx#8,depth#9,tactic#11,outcome#15,elapsed_ms#16,policy#20,tau#21,source#22,budget_id#23] Batched: true, DataFilters: [isnotnull(theorem_id#4)], Format: Parquet, Location: InMemoryFileIndex(1 paths)[file:/work/data/lake/events], PartitionFilters: [isnotnull(source#22), (source#22 = benchmark)], PushedFilters: [IsNotNull(theorem_id)], ReadSchema: struct<run_id:string,split:string,theorem_id:string,domain:string,step_idx:int,parent_step_idx:in...
+      +- BroadcastExchange HashedRelationBroadcastMode(List(input[0, string, false]),false), [plan_id=42]
+         +- Filter isnotnull(theorem_id#82)
+            +- TakeOrderedAndProject(limit=100, orderBy=[theorem_id#82 ASC NULLS FIRST], output=[theorem_id#82])
+               +- HashAggregate(keys=[theorem_id#82], functions=[], output=[theorem_id#82])
+                  +- Exchange hashpartitioning(theorem_id#82, 64), ENSURE_REQUIREMENTS, [plan_id=37]
+                     +- HashAggregate(keys=[theorem_id#82], functions=[], output=[theorem_id#82])
+                        +- Project [theorem_id#82]
+                           +- FileScan parquet [theorem_id#82,source#100,budget_id#101] Batched: true, DataFilters: [], Format: Parquet, Location: InMemoryFileIndex(1 paths)[file:/work/data/lake/events], PartitionFilters: [isnotnull(source#100), (source#100 = benchmark)], PushedFilters: [], ReadSchema: struct<theorem_id:string>
+,None)
+
+(3) Scan parquet 
+Output [14]: [run_id#1, split#3, theorem_id#4, domain#6, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, policy#20, tau#21, source#22, budget_id#23]
+Batched: true
+Location: InMemoryFileIndex [file:/work/data/lake/events]
+PartitionFilters: [isnotnull(source#22), (source#22 = benchmark)]
+PushedFilters: [IsNotNull(theorem_id)]
+ReadSchema: struct<run_id:string,split:string,theorem_id:string,domain:string,step_idx:int,parent_step_idx:int,depth:int,tactic:string,outcome:string,elapsed_ms:float,policy:string,tau:float>
+
+(4) ColumnarToRow [codegen id : 4]
+Input [14]: [run_id#1, split#3, theorem_id#4, domain#6, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, policy#20, tau#21, source#22, budget_id#23]
+
+(5) Filter [codegen id : 4]
+Input [14]: [run_id#1, split#3, theorem_id#4, domain#6, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, policy#20, tau#21, source#22, budget_id#23]
+Condition : isnotnull(theorem_id#4)
+
+(6) Project [codegen id : 4]
+Output [14]: [run_id#1, theorem_id#4, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, split#3, domain#6, budget_id#23, policy#20, tau#21, split(trim(tactic#11, None), \s+, -1)[0] AS tactic_head#62]
+Input [14]: [run_id#1, split#3, theorem_id#4, domain#6, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, policy#20, tau#21, source#22, budget_id#23]
+
+(7) Scan parquet 
+Output [3]: [theorem_id#82, source#100, budget_id#101]
+Batched: true
+Location: InMemoryFileIndex [file:/work/data/lake/events]
+PartitionFilters: [isnotnull(source#100), (source#100 = benchmark)]
+ReadSchema: struct<theorem_id:string>
+
+(8) ColumnarToRow [codegen id : 1]
+Input [3]: [theorem_id#82, source#100, budget_id#101]
+
+(9) Project [codegen id : 1]
+Output [1]: [theorem_id#82]
+Input [3]: [theorem_id#82, source#100, budget_id#101]
+
+(10) HashAggregate [codegen id : 1]
+Input [1]: [theorem_id#82]
+Keys [1]: [theorem_id#82]
+Functions: []
+Aggregate Attributes: []
+Results [1]: [theorem_id#82]
+
+(11) Exchange
+Input [1]: [theorem_id#82]
+Arguments: hashpartitioning(theorem_id#82, 64), ENSURE_REQUIREMENTS, [plan_id=89]
+
+(12) ShuffleQueryStage
+Output [1]: [theorem_id#82]
+Arguments: 0
+
+(13) AQEShuffleRead
+Input [1]: [theorem_id#82]
+Arguments: coalesced
+
+(14) HashAggregate [codegen id : 2]
+Input [1]: [theorem_id#82]
+Keys [1]: [theorem_id#82]
+Functions: []
+Aggregate Attributes: []
+Results [1]: [theorem_id#82]
+
+(15) TakeOrderedAndProject
+Input [1]: [theorem_id#82]
+Arguments: 100, [theorem_id#82 ASC NULLS FIRST], [theorem_id#82]
+
+(16) Filter [codegen id : 3]
+Input [1]: [theorem_id#82]
+Condition : isnotnull(theorem_id#82)
+
+(17) BroadcastExchange
+Input [1]: [theorem_id#82]
+Arguments: HashedRelationBroadcastMode(List(input[0, string, false]),false), [plan_id=146]
+
+(18) BroadcastQueryStage
+Output [1]: [theorem_id#82]
+Arguments: 1
+
+(19) BroadcastHashJoin [codegen id : 4]
+Left keys [1]: [theorem_id#4]
+Right keys [1]: [theorem_id#82]
+Join type: Inner
+Join condition: None
+
+(20) Project [codegen id : 4]
+Output [14]: [theorem_id#4, run_id#1, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, split#3, domain#6, budget_id#23, policy#20, tau#21, tactic_head#62]
+Input [15]: [run_id#1, theorem_id#4, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, split#3, domain#6, budget_id#23, policy#20, tau#21, tactic_head#62, theorem_id#82]
+
+(21) Filter
+Input [14]: [run_id#1, split#3, theorem_id#4, domain#6, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, policy#20, tau#21, source#22, budget_id#23]
+Condition : isnotnull(theorem_id#4)
+
+(22) Project
+Output [14]: [run_id#1, theorem_id#4, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, split#3, domain#6, budget_id#23, policy#20, tau#21, split(trim(tactic#11, None), \s+, -1)[0] AS tactic_head#62]
+Input [14]: [run_id#1, split#3, theorem_id#4, domain#6, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, policy#20, tau#21, source#22, budget_id#23]
+
+(23) Project
+Output [1]: [theorem_id#82]
+Input [3]: [theorem_id#82, source#100, budget_id#101]
+
+(24) HashAggregate
+Input [1]: [theorem_id#82]
+Keys [1]: [theorem_id#82]
+Functions: []
+Aggregate Attributes: []
+Results [1]: [theorem_id#82]
+
+(25) Exchange
+Input [1]: [theorem_id#82]
+Arguments: hashpartitioning(theorem_id#82, 64), ENSURE_REQUIREMENTS, [plan_id=37]
+
+(26) HashAggregate
+Input [1]: [theorem_id#82]
+Keys [1]: [theorem_id#82]
+Functions: []
+Aggregate Attributes: []
+Results [1]: [theorem_id#82]
+
+(27) TakeOrderedAndProject
+Input [1]: [theorem_id#82]
+Arguments: 100, [theorem_id#82 ASC NULLS FIRST], [theorem_id#82]
+
+(28) Filter
+Input [1]: [theorem_id#82]
+Condition : isnotnull(theorem_id#82)
+
+(29) BroadcastExchange
+Input [1]: [theorem_id#82]
+Arguments: HashedRelationBroadcastMode(List(input[0, string, false]),false), [plan_id=42]
+
+(30) BroadcastHashJoin
+Left keys [1]: [theorem_id#4]
+Right keys [1]: [theorem_id#82]
+Join type: Inner
+Join condition: None
+
+(31) Project
+Output [14]: [theorem_id#4, run_id#1, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, split#3, domain#6, budget_id#23, policy#20, tau#21, tactic_head#62]
+Input [15]: [run_id#1, theorem_id#4, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, split#3, domain#6, budget_id#23, policy#20, tau#21, tactic_head#62, theorem_id#82]
+
+(32) AdaptiveSparkPlan
+Output [14]: [theorem_id#4, run_id#1, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, split#3, domain#6, budget_id#23, policy#20, tau#21, tactic_head#62]
+Arguments: isFinalPlan=true
+
+(33) Exchange
+Input [4]: [theorem_id#3392, run_id#3389, step_idx#3395, tactic_head#3450]
+Arguments: hashpartitioning(run_id#3389, theorem_id#3392, 64), ENSURE_REQUIREMENTS, [plan_id=1332]
+
+(34) Sort
+Input [4]: [theorem_id#3392, run_id#3389, step_idx#3395, tactic_head#3450]
+Arguments: [run_id#3389 ASC NULLS FIRST, theorem_id#3392 ASC NULLS FIRST, step_idx#3395 ASC NULLS FIRST], false, 0
+
+(35) Window
+Input [4]: [theorem_id#3392, run_id#3389, step_idx#3395, tactic_head#3450]
+Arguments: [lag(tactic_head#3450, -1, null) windowspecdefinition(run_id#3389, theorem_id#3392, step_idx#3395 ASC NULLS FIRST, specifiedwindowframe(RowFrame, -1, -1)) AS _we0#3728], [run_id#3389, theorem_id#3392], [step_idx#3395 ASC NULLS FIRST]
+
+(36) Project
+Output [2]: [tactic_head#3450, coalesce(_we0#3728, <start>) AS prev_in_order#3727]
+Input [5]: [theorem_id#3392, run_id#3389, step_idx#3395, tactic_head#3450, _we0#3728]
+
+(37) HashAggregate
+Input [2]: [tactic_head#3450, prev_in_order#3727]
+Keys [2]: [prev_in_order#3727, tactic_head#3450]
+Functions [1]: [partial_count(1)]
+Aggregate Attributes [1]: [count#5062L]
+Results [3]: [prev_in_order#3727, tactic_head#3450, count#5063L]
+
+(38) Exchange
+Input [3]: [prev_in_order#3727, tactic_head#3450, count#5063L]
+Arguments: hashpartitioning(prev_in_order#3727, tactic_head#3450, 64), ENSURE_REQUIREMENTS, [plan_id=1338]
+
+(39) HashAggregate
+Input [3]: [prev_in_order#3727, tactic_head#3450, count#5063L]
+Keys [2]: [prev_in_order#3727, tactic_head#3450]
+Functions [1]: [count(1)]
+Aggregate Attributes [1]: [count(1)#3759L]
+Results [3]: [prev_in_order#3727, tactic_head#3450, count(1)#3759L AS count#3760L]
+
+(40) Exchange
+Input [3]: [prev_in_order#3727, tactic_head#3450, count#3760L]
+Arguments: rangepartitioning(count#3760L DESC NULLS LAST, prev_in_order#3727 ASC NULLS FIRST, tactic_head#3450 ASC NULLS FIRST, 64), ENSURE_REQUIREMENTS, [plan_id=1341]
+
+(41) Sort
+Input [3]: [prev_in_order#3727, tactic_head#3450, count#3760L]
+Arguments: [count#3760L DESC NULLS LAST, prev_in_order#3727 ASC NULLS FIRST, tactic_head#3450 ASC NULLS FIRST], true, 0
+
+(42) AdaptiveSparkPlan
+Output [3]: [prev_in_order#3727, tactic_head#3450, count#3760L]
+Arguments: isFinalPlan=false
+

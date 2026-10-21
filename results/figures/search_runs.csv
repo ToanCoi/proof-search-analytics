@@ -1,6 +1,8 @@
-run_id,data_version,budget_id,max_calls,timeout_s,policy,tau,n,proof_success_rate,avg_states_expanded,avg_lean_s,avg_wall_s,budget_exhausted_rate,unknown_rate,repl_restarts
-20261019-133955-repl-baseline-S-d283,minif2f-ds15@2c4ba91+lean-v4.9.0,S,50,30,none,0.0,100,0.32,25.74,11.418933206149859,16.10536243624998,0.27,0.0,1
-20261019-135336-repl-baseline-M-3cb2,minif2f-ds15@2c4ba91+lean-v4.9.0,M,200,120,none,0.0,100,0.32,46.54,21.486408734190242,22.25661899425001,0.1,0.0,3
-20261019-141221-repl-baseline-L-4f64,minif2f-ds15@2c4ba91+lean-v4.9.0,L,800,300,none,0.0,100,0.32,76.71,32.10399467703005,32.79438380185996,0.04,0.0,4
-20261019-144105-repl-prune-M-tau0005-86d8,minif2f-ds15@2c4ba91+lean-v4.9.0,M,200,120,artifacts/tactic_model.joblib,0.005,100,0.32,39.83,19.728694490020864,20.461277550400084,0.08,0.0,0
-20261019-145826-repl-prune-M-tau001-564d,minif2f-ds15@2c4ba91+lean-v4.9.0,M,200,120,artifacts/tactic_model.joblib,0.01,100,0.32,31.16,18.197599574419147,18.922949854020118,0.05,0.0,0
+run_id,run_name,data_version,budget_id,max_calls,timeout_s,policy,tau,n,proof_success_rate,avg_states_expanded,avg_lean_s,avg_wall_s,budget_exhausted_rate,unknown_rate,repl_restarts
+20261019-133955-repl-baseline-S-d283,repl-baseline-S,minif2f-ds15@2c4ba91+lean-v4.9.0,S,50,30,none,0.0,100,0.32,25.74,11.418933206149859,16.10536243624998,0.27,0.0,1
+20261019-135336-repl-baseline-M-3cb2,repl-baseline-M,minif2f-ds15@2c4ba91+lean-v4.9.0,M,200,120,none,0.0,100,0.32,46.54,21.486408734190242,22.25661899425001,0.1,0.0,3
+20261019-141221-repl-baseline-L-4f64,repl-baseline-L,minif2f-ds15@2c4ba91+lean-v4.9.0,L,800,300,none,0.0,100,0.32,76.71,32.10399467703005,32.79438380185996,0.04,0.0,4
+20261019-144105-repl-prune-M-tau0005-86d8,repl-prune-M-tau0005,minif2f-ds15@2c4ba91+lean-v4.9.0,M,200,120,artifacts/tactic_model.joblib,0.005,100,0.32,39.83,19.728694490020864,20.461277550400084,0.08,0.0,0
+20261019-145826-repl-prune-M-tau001-564d,repl-prune-M-tau001,minif2f-ds15@2c4ba91+lean-v4.9.0,M,200,120,artifacts/tactic_model.joblib,0.01,100,0.32,31.16,18.197599574419147,18.922949854020118,0.05,0.0,0
+20261020-161324-repl-baseline-M-90d9,repl-baseline-M,minif2f-ds15@2c4ba91+lean-v4.9.0,M,200,120,none,0.0,100,0.32,46.51,22.142206966919975,26.681333436110002,0.1,0.0,4
+20261021-161411-repl-baseline-M-3db4,repl-baseline-M,minif2f-ds15@2c4ba91+lean-v4.9.0,M,200,120,none,0.0,100,0.32,44.51,28.90553046108005,36.616054795890015,0.11,0.0,16

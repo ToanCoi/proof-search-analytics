@@ -1,0 +1,78 @@
+tau,theorem_id,domain,replay_status,baseline_proof,min_path_score,pruned_proof_tactics,cause
+0.01,mathd_algebra_104,mathd_algebra,unknown,linarith,0.008096130893513,linarith,proof tactic pruned
+0.01,mathd_algebra_412,mathd_algebra,unknown,linarith,0.0057781908071893,linarith,proof tactic pruned
+0.02,aime_1989_p8,aime,unknown,linarith,0.0113349958444616,linarith,proof tactic pruned
+0.02,mathd_algebra_104,mathd_algebra,unknown,linarith,0.008096130893513,linarith,proof tactic pruned
+0.02,mathd_algebra_132,mathd_algebra,unknown,simp_all ; linarith,0.0132380911373815,linarith,proof tactic pruned
+0.02,mathd_algebra_412,mathd_algebra,unknown,linarith,0.0057781908071893,linarith,proof tactic pruned
+0.02,mathd_numbertheory_127,mathd_numbertheory,unknown,rfl,0.0156125748875903,rfl,proof tactic pruned
+0.02,mathd_numbertheory_211,mathd_numbertheory,unknown,rfl,0.0145472333801954,rfl,proof tactic pruned
+0.02,mathd_numbertheory_85,mathd_numbertheory,unknown,rfl,0.0140135356086193,rfl,proof tactic pruned
+0.05,aime_1989_p8,aime,unknown,linarith,0.0113349958444616,linarith,proof tactic pruned
+0.05,mathd_algebra_104,mathd_algebra,unknown,linarith,0.008096130893513,linarith,proof tactic pruned
+0.05,mathd_algebra_109,mathd_algebra,unknown,linarith,0.0322121679380651,linarith,proof tactic pruned
+0.05,mathd_algebra_132,mathd_algebra,unknown,simp_all ; linarith,0.0132380911373815,linarith,proof tactic pruned
+0.05,mathd_algebra_143,mathd_algebra,unknown,simp_all ; norm_num,0.0436934229602096,norm_num,proof tactic pruned
+0.05,mathd_algebra_388,mathd_algebra,unknown,linarith,0.0277237486439392,linarith,proof tactic pruned
+0.05,mathd_algebra_412,mathd_algebra,unknown,linarith,0.0057781908071893,linarith,proof tactic pruned
+0.05,mathd_algebra_67,mathd_algebra,unknown,simp_all ; norm_num,0.0442538781702312,norm_num,proof tactic pruned
+0.05,mathd_numbertheory_127,mathd_numbertheory,unknown,rfl,0.0156125748875903,rfl,proof tactic pruned
+0.05,mathd_numbertheory_198,mathd_numbertheory,unknown,rfl,0.0377408196241272,rfl,proof tactic pruned
+0.05,mathd_numbertheory_211,mathd_numbertheory,unknown,rfl,0.0145472333801954,rfl,proof tactic pruned
+0.05,mathd_numbertheory_236,mathd_numbertheory,unknown,rfl,0.0272143208826621,rfl,proof tactic pruned
+0.05,mathd_numbertheory_239,mathd_numbertheory,unknown,rfl,0.0231459220146338,rfl,proof tactic pruned
+0.05,mathd_numbertheory_299,mathd_numbertheory,unknown,rfl,0.0283848726385039,rfl,proof tactic pruned
+0.05,mathd_numbertheory_517,mathd_numbertheory,unknown,rfl,0.0207358053959636,rfl,proof tactic pruned
+0.05,mathd_numbertheory_668,mathd_numbertheory,unknown,simp_all ; rfl,0.0218235597732465,rfl,proof tactic pruned
+0.05,mathd_numbertheory_81,mathd_numbertheory,unknown,rfl,0.0332895472749697,rfl,proof tactic pruned
+0.05,mathd_numbertheory_85,mathd_numbertheory,unknown,rfl,0.0140135356086193,rfl,proof tactic pruned
+0.1,aime_1989_p8,aime,exhausted,linarith,0.0113349958444616,linarith,proof tactic pruned
+0.1,mathd_algebra_104,mathd_algebra,unknown,linarith,0.008096130893513,linarith,proof tactic pruned
+0.1,mathd_algebra_109,mathd_algebra,unknown,linarith,0.0322121679380651,linarith,proof tactic pruned
+0.1,mathd_algebra_132,mathd_algebra,exhausted,simp_all ; linarith,0.0132380911373815,simp_all ; linarith,proof tactic pruned
+0.1,mathd_algebra_143,mathd_algebra,exhausted,simp_all ; norm_num,0.0436934229602096,simp_all ; norm_num,proof tactic pruned
+0.1,mathd_algebra_346,mathd_algebra,unknown,simp_all ; norm_num,0.0547308139581931,norm_num,proof tactic pruned
+0.1,mathd_algebra_388,mathd_algebra,unknown,linarith,0.0277237486439392,linarith,proof tactic pruned
+0.1,mathd_algebra_412,mathd_algebra,unknown,linarith,0.0057781908071893,linarith,proof tactic pruned
+0.1,mathd_algebra_478,mathd_algebra,exhausted,nlinarith,0.081079014192728,nlinarith,proof tactic pruned
+0.1,mathd_algebra_55,mathd_algebra,unknown,simp_all ; norm_num,0.0711195563914549,norm_num,proof tactic pruned
+0.1,mathd_algebra_67,mathd_algebra,exhausted,simp_all ; norm_num,0.0442538781702312,simp_all ; norm_num,proof tactic pruned
+0.1,mathd_numbertheory_127,mathd_numbertheory,unknown,rfl,0.0156125748875903,rfl,proof tactic pruned
+0.1,mathd_numbertheory_198,mathd_numbertheory,unknown,rfl,0.0377408196241272,rfl,proof tactic pruned
+0.1,mathd_numbertheory_211,mathd_numbertheory,unknown,rfl,0.0145472333801954,rfl,proof tactic pruned
+0.1,mathd_numbertheory_236,mathd_numbertheory,unknown,rfl,0.0272143208826621,rfl,proof tactic pruned
+0.1,mathd_numbertheory_239,mathd_numbertheory,unknown,rfl,0.0231459220146338,rfl,proof tactic pruned
+0.1,mathd_numbertheory_299,mathd_numbertheory,unknown,rfl,0.0283848726385039,rfl,proof tactic pruned
+0.1,mathd_numbertheory_517,mathd_numbertheory,unknown,rfl,0.0207358053959636,rfl,proof tactic pruned
+0.1,mathd_numbertheory_668,mathd_numbertheory,exhausted,simp_all ; rfl,0.0218235597732465,simp_all ; rfl,proof tactic pruned
+0.1,mathd_numbertheory_81,mathd_numbertheory,unknown,rfl,0.0332895472749697,rfl,proof tactic pruned
+0.1,mathd_numbertheory_85,mathd_numbertheory,unknown,rfl,0.0140135356086193,rfl,proof tactic pruned
+0.2,aime_1989_p8,aime,exhausted,linarith,0.0113349958444616,linarith,proof tactic pruned
+0.2,mathd_algebra_104,mathd_algebra,exhausted,linarith,0.008096130893513,linarith,proof tactic pruned
+0.2,mathd_algebra_109,mathd_algebra,exhausted,linarith,0.0322121679380651,linarith,proof tactic pruned
+0.2,mathd_algebra_132,mathd_algebra,exhausted,simp_all ; linarith,0.0132380911373815,simp_all ; linarith,proof tactic pruned
+0.2,mathd_algebra_143,mathd_algebra,exhausted,simp_all ; norm_num,0.0436934229602096,simp_all ; norm_num,proof tactic pruned
+0.2,mathd_algebra_275,mathd_algebra,exhausted,simp_all,0.1351652600402876,simp_all,proof tactic pruned
+0.2,mathd_algebra_346,mathd_algebra,exhausted,simp_all ; norm_num,0.0547308139581931,simp_all ; norm_num,proof tactic pruned
+0.2,mathd_algebra_388,mathd_algebra,exhausted,linarith,0.0277237486439392,linarith,proof tactic pruned
+0.2,mathd_algebra_412,mathd_algebra,exhausted,linarith,0.0057781908071893,linarith,proof tactic pruned
+0.2,mathd_algebra_419,mathd_algebra,exhausted,nlinarith,0.1442747125323954,nlinarith,proof tactic pruned
+0.2,mathd_algebra_478,mathd_algebra,exhausted,nlinarith,0.081079014192728,nlinarith,proof tactic pruned
+0.2,mathd_algebra_55,mathd_algebra,exhausted,simp_all ; norm_num,0.0711195563914549,simp_all ; norm_num,proof tactic pruned
+0.2,mathd_algebra_67,mathd_algebra,exhausted,simp_all ; norm_num,0.0442538781702312,simp_all ; norm_num,proof tactic pruned
+0.2,mathd_numbertheory_1124,mathd_numbertheory,exhausted,omega,0.1123619470594777,omega,proof tactic pruned
+0.2,mathd_numbertheory_127,mathd_numbertheory,exhausted,rfl,0.0156125748875903,rfl,proof tactic pruned
+0.2,mathd_numbertheory_198,mathd_numbertheory,exhausted,rfl,0.0377408196241272,rfl,proof tactic pruned
+0.2,mathd_numbertheory_211,mathd_numbertheory,exhausted,rfl,0.0145472333801954,rfl,proof tactic pruned
+0.2,mathd_numbertheory_236,mathd_numbertheory,exhausted,rfl,0.0272143208826621,rfl,proof tactic pruned
+0.2,mathd_numbertheory_239,mathd_numbertheory,exhausted,rfl,0.0231459220146338,rfl,proof tactic pruned
+0.2,mathd_numbertheory_299,mathd_numbertheory,unknown,rfl,0.0283848726385039,rfl,proof tactic pruned
+0.2,mathd_numbertheory_33,mathd_numbertheory,exhausted,omega,0.1166242601983598,omega,proof tactic pruned
+0.2,mathd_numbertheory_34,mathd_numbertheory,exhausted,omega,0.1076200909948862,omega,proof tactic pruned
+0.2,mathd_numbertheory_370,mathd_numbertheory,exhausted,omega,0.1368277196054358,omega,proof tactic pruned
+0.2,mathd_numbertheory_458,mathd_numbertheory,exhausted,omega,0.1924177003950767,omega,proof tactic pruned
+0.2,mathd_numbertheory_517,mathd_numbertheory,exhausted,rfl,0.0207358053959636,rfl,proof tactic pruned
+0.2,mathd_numbertheory_668,mathd_numbertheory,exhausted,simp_all ; rfl,0.0218235597732465,simp_all ; rfl,proof tactic pruned
+0.2,mathd_numbertheory_81,mathd_numbertheory,unknown,rfl,0.0332895472749697,rfl,proof tactic pruned
+0.2,mathd_numbertheory_85,mathd_numbertheory,exhausted,rfl,0.0140135356086193,rfl,proof tactic pruned
+0.2,mathd_numbertheory_99,mathd_numbertheory,exhausted,omega,0.1241862645706432,omega,proof tactic pruned

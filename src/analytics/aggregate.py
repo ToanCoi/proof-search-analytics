@@ -1,8 +1,8 @@
 """Khối 4 — Spark aggregation trên trace lake.
 
-Bảng: tactic_stats (tần suất + failure rate), branching (theo depth), per_theorem
-(depth, states expanded, proved), transitions (tactic cha -> con dọc cây), position
-(tactic trước -> sau theo thứ tự bước, window lag).
+Bảng: tactic_stats (tần suất + failure rate), outcomes (tactic x outcome, pivot), branching
+(theo depth), per_theorem (depth, states expanded, proved), transitions (tactic cha -> con dọc
+cây), position (tactic trước -> sau theo thứ tự bước, window lag).
 
     python -m src.analytics.aggregate --source benchmark --limit-theorems 1000
 """
@@ -14,8 +14,9 @@ import pathlib
 import time
 
 from src.common.runlog import log_run, new_run_id
+from src.common.schema import OUTCOMES
 
-TABLES = ("tactic_stats", "branching", "per_theorem", "transitions", "position")
+TABLES = ("tactic_stats", "outcomes", "branching", "per_theorem", "transitions", "position")
 # Chỉ đọc các cột cần cho tổng hợp (Parquet là columnar -> không đọc text state_before/after)
 COLS = ("run_id", "theorem_id", "step_idx", "parent_step_idx", "depth", "tactic", "outcome",
         "elapsed_ms", "split", "domain", "budget_id", "policy", "tau")
@@ -58,6 +59,10 @@ def aggregate(ev) -> dict:
                          F.avg("elapsed_ms").alias("avg_elapsed_ms"))
                     .orderBy(F.desc("n"), "tactic_head"))
 
+    # phân bố kết quả mỗi tactic (pivot): lời gọi "duplicate" = trả về state đã gặp -> tốn Lean, vô ích
+    outcomes = (ev.groupBy("tactic_head").pivot("outcome", list(OUTCOMES)).count().fillna(0)
+                .orderBy("tactic_head"))
+
     # branching factor: số con "progress" mỗi state (state = event cha), trung bình theo depth
     branching = (ev.groupBy(*k, "parent_step_idx", "depth")
                  .agg(F.sum((F.col("outcome") == "progress").cast("int")).alias("children"),
@@ -90,8 +95,8 @@ def aggregate(ev) -> dict:
                 .groupBy("prev_in_order", "tactic_head").count()
                 .orderBy(F.desc("count"), "prev_in_order", "tactic_head"))
 
-    return {"tactic_stats": tactic_stats, "branching": branching, "per_theorem": per_theorem,
-            "transitions": transitions, "position": position}
+    return {"tactic_stats": tactic_stats, "outcomes": outcomes, "branching": branching,
+            "per_theorem": per_theorem, "transitions": transitions, "position": position}
 
 
 def explain_string(df, mode: str = "formatted") -> str:

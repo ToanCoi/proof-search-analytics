@@ -1,0 +1,39 @@
+theorem_id,domain,step,tactic,score,min_score,path
+aime_1989_p8,aime,0,linarith,0.011334995844461621,0.011334995844461621,linarith
+algebra_3rootspoly_amdtamctambeqnasqmbpctapcbtdpasqmbpctapcbta,algebra,0,ring,0.28758694863661055,0.28758694863661055,ring
+mathd_algebra_104,mathd_algebra,0,linarith,0.008096130893513033,0.008096130893513033,linarith
+mathd_algebra_109,mathd_algebra,0,linarith,0.03221216793806515,0.03221216793806515,linarith
+mathd_algebra_132,mathd_algebra,0,simp_all,0.06663529443433032,0.013238091137381586,simp_all ; linarith
+mathd_algebra_132,mathd_algebra,1,linarith,0.013238091137381586,0.013238091137381586,simp_all ; linarith
+mathd_algebra_143,mathd_algebra,0,simp_all,0.07320662131891084,0.04369342296020961,simp_all ; norm_num
+mathd_algebra_143,mathd_algebra,1,norm_num,0.04369342296020961,0.04369342296020961,simp_all ; norm_num
+mathd_algebra_275,mathd_algebra,0,simp_all,0.13516526004028762,0.13516526004028762,simp_all
+mathd_algebra_302,mathd_algebra,0,norm_num,0.2919628241699262,0.2919628241699262,norm_num
+mathd_algebra_346,mathd_algebra,0,simp_all,0.103359673845206,0.05473081395819314,simp_all ; norm_num
+mathd_algebra_346,mathd_algebra,1,norm_num,0.05473081395819314,0.05473081395819314,simp_all ; norm_num
+mathd_algebra_388,mathd_algebra,0,linarith,0.027723748643939238,0.027723748643939238,linarith
+mathd_algebra_412,mathd_algebra,0,linarith,0.005778190807189338,0.005778190807189338,linarith
+mathd_algebra_419,mathd_algebra,0,nlinarith,0.14427471253239546,0.14427471253239546,nlinarith
+mathd_algebra_478,mathd_algebra,0,nlinarith,0.08107901419272809,0.08107901419272809,nlinarith
+mathd_algebra_55,mathd_algebra,0,simp_all,0.19499851548082517,0.07111955639145491,simp_all ; norm_num
+mathd_algebra_55,mathd_algebra,1,norm_num,0.07111955639145491,0.07111955639145491,simp_all ; norm_num
+mathd_algebra_67,mathd_algebra,0,simp_all,0.08705915655848451,0.04425387817023127,simp_all ; norm_num
+mathd_algebra_67,mathd_algebra,1,norm_num,0.04425387817023127,0.04425387817023127,simp_all ; norm_num
+mathd_numbertheory_1124,mathd_numbertheory,0,omega,0.11236194705947777,0.11236194705947777,omega
+mathd_numbertheory_127,mathd_numbertheory,0,rfl,0.015612574887590339,0.015612574887590339,rfl
+mathd_numbertheory_198,mathd_numbertheory,0,rfl,0.037740819624127266,0.037740819624127266,rfl
+mathd_numbertheory_211,mathd_numbertheory,0,rfl,0.014547233380195427,0.014547233380195427,rfl
+mathd_numbertheory_236,mathd_numbertheory,0,rfl,0.027214320882662107,0.027214320882662107,rfl
+mathd_numbertheory_239,mathd_numbertheory,0,rfl,0.02314592201463383,0.02314592201463383,rfl
+mathd_numbertheory_299,mathd_numbertheory,0,rfl,0.028384872638503963,0.028384872638503963,rfl
+mathd_numbertheory_33,mathd_numbertheory,0,omega,0.11662426019835985,0.11662426019835985,omega
+mathd_numbertheory_335,mathd_numbertheory,0,omega,0.20941898161071423,0.20941898161071423,omega
+mathd_numbertheory_34,mathd_numbertheory,0,omega,0.10762009099488624,0.10762009099488624,omega
+mathd_numbertheory_370,mathd_numbertheory,0,omega,0.13682771960543585,0.13682771960543585,omega
+mathd_numbertheory_458,mathd_numbertheory,0,omega,0.1924177003950767,0.1924177003950767,omega
+mathd_numbertheory_517,mathd_numbertheory,0,rfl,0.0207358053959636,0.0207358053959636,rfl
+mathd_numbertheory_668,mathd_numbertheory,0,simp_all,0.09938081811891306,0.02182355977324654,simp_all ; rfl
+mathd_numbertheory_668,mathd_numbertheory,1,rfl,0.02182355977324654,0.02182355977324654,simp_all ; rfl
+mathd_numbertheory_81,mathd_numbertheory,0,rfl,0.03328954727496976,0.03328954727496976,rfl
+mathd_numbertheory_85,mathd_numbertheory,0,rfl,0.014013535608619386,0.014013535608619386,rfl
+mathd_numbertheory_99,mathd_numbertheory,0,omega,0.12418626457064325,0.12418626457064325,omega

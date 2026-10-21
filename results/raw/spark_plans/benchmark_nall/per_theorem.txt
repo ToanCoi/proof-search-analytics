@@ -1,0 +1,68 @@
+== Physical Plan ==
+AdaptiveSparkPlan (11)
++- Sort (10)
+   +- Exchange (9)
+      +- HashAggregate (8)
+         +- Exchange (7)
+            +- HashAggregate (6)
+               +- InMemoryTableScan (1)
+                     +- InMemoryRelation (2)
+                           +- * Project (5)
+                              +- * ColumnarToRow (4)
+                                 +- Scan parquet  (3)
+
+
+(1) InMemoryTableScan
+Output [10]: [run_id#3324, theorem_id#3327, depth#3332, outcome#3338, elapsed_ms#3339, split#3326, domain#3329, budget_id#3346, policy#3343, tau#3344]
+Arguments: [run_id#3324, theorem_id#3327, depth#3332, outcome#3338, elapsed_ms#3339, split#3326, domain#3329, budget_id#3346, policy#3343, tau#3344]
+
+(2) InMemoryRelation
+Arguments: [run_id#3324, theorem_id#3327, step_idx#3330, parent_step_idx#3331, depth#3332, tactic#3334, outcome#3338, elapsed_ms#3339, split#3326, domain#3329, budget_id#3346, policy#3343, tau#3344, tactic_head#3385], CachedRDDBuilder(org.apache.spark.sql.execution.columnar.DefaultCachedBatchSerializer@5b99497a,StorageLevel(disk, memory, deserialized, 1 replicas),*(1) Project [run_id#1, theorem_id#4, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, split#3, domain#6, budget_id#23, policy#20, tau#21, split(trim(tactic#11, None), \s+, -1)[0] AS tactic_head#62]
++- *(1) ColumnarToRow
+   +- FileScan parquet [run_id#1,split#3,theorem_id#4,domain#6,step_idx#7,parent_step_idx#8,depth#9,tactic#11,outcome#15,elapsed_ms#16,policy#20,tau#21,source#22,budget_id#23] Batched: true, DataFilters: [], Format: Parquet, Location: InMemoryFileIndex(1 paths)[file:/work/data/lake/events], PartitionFilters: [isnotnull(source#22), (source#22 = benchmark)], PushedFilters: [], ReadSchema: struct<run_id:string,split:string,theorem_id:string,domain:string,step_idx:int,parent_step_idx:in...
+,None)
+
+(3) Scan parquet 
+Output [14]: [run_id#1, split#3, theorem_id#4, domain#6, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, policy#20, tau#21, source#22, budget_id#23]
+Batched: true
+Location: InMemoryFileIndex [file:/work/data/lake/events]
+PartitionFilters: [isnotnull(source#22), (source#22 = benchmark)]
+ReadSchema: struct<run_id:string,split:string,theorem_id:string,domain:string,step_idx:int,parent_step_idx:int,depth:int,tactic:string,outcome:string,elapsed_ms:float,policy:string,tau:float>
+
+(4) ColumnarToRow [codegen id : 1]
+Input [14]: [run_id#1, split#3, theorem_id#4, domain#6, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, policy#20, tau#21, source#22, budget_id#23]
+
+(5) Project [codegen id : 1]
+Output [14]: [run_id#1, theorem_id#4, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, split#3, domain#6, budget_id#23, policy#20, tau#21, split(trim(tactic#11, None), \s+, -1)[0] AS tactic_head#62]
+Input [14]: [run_id#1, split#3, theorem_id#4, domain#6, step_idx#7, parent_step_idx#8, depth#9, tactic#11, outcome#15, elapsed_ms#16, policy#20, tau#21, source#22, budget_id#23]
+
+(6) HashAggregate
+Input [10]: [run_id#3324, theorem_id#3327, depth#3332, outcome#3338, elapsed_ms#3339, split#3326, domain#3329, budget_id#3346, policy#3343, tau#3344]
+Keys [7]: [run_id#3324, theorem_id#3327, split#3326, domain#3329, budget_id#3346, policy#3343, knownfloatingpointnormalized(normalizenanandzero(tau#3344)) AS tau#3344]
+Functions [5]: [partial_max(depth#3332), partial_count(1), partial_max(cast((outcome#3338 = finished) as int)), partial_avg(cast((outcome#3338 = error) as double)), partial_sum(elapsed_ms#3339)]
+Aggregate Attributes [6]: [max#4288, count#4289L, max#4290, sum#4291, count#4292L, sum#4293]
+Results [13]: [run_id#3324, theorem_id#3327, split#3326, domain#3329, budget_id#3346, policy#3343, tau#3344, max#4294, count#4295L, max#4296, sum#4297, count#4298L, sum#4299]
+
+(7) Exchange
+Input [13]: [run_id#3324, theorem_id#3327, split#3326, domain#3329, budget_id#3346, policy#3343, tau#3344, max#4294, count#4295L, max#4296, sum#4297, count#4298L, sum#4299]
+Arguments: hashpartitioning(run_id#3324, theorem_id#3327, split#3326, domain#3329, budget_id#3346, policy#3343, tau#3344, 64), ENSURE_REQUIREMENTS, [plan_id=1178]
+
+(8) HashAggregate
+Input [13]: [run_id#3324, theorem_id#3327, split#3326, domain#3329, budget_id#3346, policy#3343, tau#3344, max#4294, count#4295L, max#4296, sum#4297, count#4298L, sum#4299]
+Keys [7]: [run_id#3324, theorem_id#3327, split#3326, domain#3329, budget_id#3346, policy#3343, tau#3344]
+Functions [5]: [max(depth#3332), count(1), max(cast((outcome#3338 = finished) as int)), avg(cast((outcome#3338 = error) as double)), sum(elapsed_ms#3339)]
+Aggregate Attributes [5]: [max(depth#3332)#3478, count(1)#3480L, max(cast((outcome#3338 = finished) as int))#3482, avg(cast((outcome#3338 = error) as double))#3484, sum(elapsed_ms#3339)#3486]
+Results [12]: [run_id#3324, theorem_id#3327, split#3326, domain#3329, budget_id#3346, policy#3343, tau#3344, max(depth#3332)#3478 AS max_depth#3479, count(1)#3480L AS states_expanded#3481L, max(cast((outcome#3338 = finished) as int))#3482 AS proved#3483, avg(cast((outcome#3338 = error) as double))#3484 AS fail_rate#3485, sum(elapsed_ms#3339)#3486 AS lean_ms#3487]
+
+(9) Exchange
+Input [12]: [run_id#3324, theorem_id#3327, split#3326, domain#3329, budget_id#3346, policy#3343, tau#3344, max_depth#3479, states_expanded#3481L, proved#3483, fail_rate#3485, lean_ms#3487]
+Arguments: rangepartitioning(run_id#3324 ASC NULLS FIRST, theorem_id#3327 ASC NULLS FIRST, 64), ENSURE_REQUIREMENTS, [plan_id=1181]
+
+(10) Sort
+Input [12]: [run_id#3324, theorem_id#3327, split#3326, domain#3329, budget_id#3346, policy#3343, tau#3344, max_depth#3479, states_expanded#3481L, proved#3483, fail_rate#3485, lean_ms#3487]
+Arguments: [run_id#3324 ASC NULLS FIRST, theorem_id#3327 ASC NULLS FIRST], true, 0
+
+(11) AdaptiveSparkPlan
+Output [12]: [run_id#3324, theorem_id#3327, split#3326, domain#3329, budget_id#3346, policy#3343, tau#3344, max_depth#3479, states_expanded#3481L, proved#3483, fail_rate#3485, lean_ms#3487]
+Arguments: isFinalPlan=false
+

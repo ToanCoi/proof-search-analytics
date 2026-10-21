@@ -25,6 +25,8 @@ def test_aggregate_tables(spark, lake):
     assert tables["tactic_stats"].n.sum() == total
     assert tables["transitions"]["count"].sum() == total
     assert tables["position"]["count"].sum() == total
+    out = tables["outcomes"]
+    assert out[["finished", "progress", "duplicate", "error", "unknown"]].to_numpy().sum() == total
     # benchmark = đường thẳng: mỗi state có đúng 1 tactic được thử
     assert (tables["branching"].avg_tried == 1).all()
     pt = tables["per_theorem"]

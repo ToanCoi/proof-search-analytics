@@ -24,7 +24,7 @@ Lean REPL/Dojo ─best-first─────┘         │  manifest + sha256   
 | 1 Trace collector | `src/search/{core,live_repl,live,collect,select}.py` | best-first, budget 3 chiều (calls, giây Lean, depth) |
 | 2 Event schema | `src/common/schema.py`, `docs/data_card.md` | v0.1.0, 1 dòng = 1 lần thử tactic |
 | 3 Parquet lake | `src/ingest/benchmark.py`, `src/lake/manifest.py` | partition `source`, `budget_id`; zstd; manifest checksum |
-| 4 Spark aggregation | `src/analytics/aggregate.py` | 5 bảng; broadcast join, self-join, window lag |
+| 4 Spark aggregation | `src/analytics/aggregate.py` | 6 bảng; broadcast join, self-join, window lag, pivot; ghi physical plan |
 | 5–6 Feature/predictor/policy | `src/model/{train,policy}.py` | baseline most-frequent vs TF-IDF + SGD |
 | 7 Replay/eval | `src/search/replay.py`, `src/eval/{prune_sweep,figures}.py` | budget lấy từ run gốc, ≥3 lần, median |
 
@@ -53,6 +53,9 @@ docker compose run --rm app make demo      # kết quả ở data/demo/
 - Docker Desktop → Settings → Resources → Advanced → **Disk image location** sang ổ còn nhiều chỗ
   (vd `D:\DockerData`): mathlib build sẵn + toolchain Lean chiếm ~8–10 GB.
 - Cấp RAM cho WSL: `C:\Users\<user>\.wslconfig` gồm `[wsl2]`, `memory=20GB`, `processors=8`; rồi `wsl --shutdown`.
+- Search dùng 2 REPL đã import Mathlib (mỗi REPL 4–6 GB). Windows cần có **pagefile** (để hệ thống quản lý) và
+  đủ commit trống; nếu không, khi hết bộ nhớ ảo Windows giết WSL và container thoát với mã 137/255.
+  Không để máy sleep trong lúc chạy search (sleep cũng làm Docker Desktop dừng).
 
 ### Phần 1 — Analytics & predictor (Benchmark 4, không cần Lean)
 
@@ -60,7 +63,8 @@ docker compose run --rm app make demo      # kết quả ở data/demo/
 make download                  # LeanDojo Benchmark 4 -> data/raw + MANIFEST.txt (sha256)
 make sample                    # data_sample/ bằng 1 lệnh (100 định lý/split) + manifest
 make ingest                    # toàn bộ Benchmark -> data/lake/events + manifest.json
-make aggregate                 # Spark ở 100/1K/10K/all định lý, mỗi mức 3 lần (E1)
+make aggregate                 # Spark ở 100/1K/10K/all định lý, mỗi mức 3 lần (E1); ghi physical plan
+make replicate aggregate-rep   # lake nhân bản ×10, ×50 (chỉ đo runtime Spark), mỗi mức 3 lần
 make train                     # most-frequent vs TF-IDF+SGD, top-1/3/5/10 (E2); make ablation
 ```
 
@@ -73,9 +77,18 @@ make select-minif2f            # 100 bài cố định (seed 42) -> data/selecti
 make collect CONFIG=configs/search_repl_baseline_S.yaml   # chạy thử (lần đầu tải mathlib build sẵn)
 make baseline-repl             # no-pruning budget S/M/L (E3) — LÂU, chạy nền qua đêm
 make sweep RUN=<run_id repl-baseline-M>                   # replay τ ∈ {0..0.2} ×3 (E4)
-make collect CONFIG=configs/search_repl_prune_M_tau0005.yaml      # live check τ tốt nhất
+make collect CONFIG=configs/search_repl_prune_M_tau001.yaml       # live check τ đã chọn (0.01); tương tự tau0005
 make aggregate-search && make figures && make dashboard
 ```
+
+### Phần 3 — Báo cáo và slides (chạy trên máy host)
+
+```bash
+pip install -r requirements-docs.txt
+make report                    # report.docx + slides/slides.pptx; mọi số đọc từ results/
+```
+
+`report.pdf` xuất từ `report.docx` (Word → Save as PDF). Kịch bản demo: `slides/demo_script.md`.
 
 Phương án dự phòng (LeanDojo trên chính Benchmark 4, cần trace mathlib — nặng):
 `make select && make baseline` rồi `make sweep RUN=<run_id search-baseline-M>`.
@@ -102,39 +115,62 @@ Lean 4 + mathlib thật, cùng thuật toán/schema; *cost* — không cần tra
 
 | | Biến | Cố định | Đo |
 |---|---|---|---|
-| E1 scale analytics | 100 → 1K → 10K → all định lý | Spark config, máy | runtime median [min–max], events/s, storage |
+| E1 scale analytics | 100 → 1K → 10K → all định lý → lake nhân bản ×10, ×50 | Spark config, máy | runtime median [min–max], events/s, storage |
 | E2 predictor | most-frequent vs TF-IDF+SGD; ablation unigram | split Benchmark, seed | top-1/3/5/10, theo domain |
 | E3 search budget | S / M / L | 100 định lý, danh sách tactic | proof rate, states expanded, wall time |
-| E4 pruning | τ | cùng định lý, cùng budget M | Pareto proof rate ↔ states expanded, unknown rate, định lý bị mất |
+| E4 pruning | τ | cùng định lý, cùng budget (S/M/L; live ở M) | Pareto proof rate ↔ states expanded, unknown rate, định lý bị mất |
 
 Primary metrics: **proof success rate** (chất lượng) và **states expanded / định lý** (chi phí).
 
-## Kết quả hiện tại (19/10/2026)
+## Kết quả (21/10/2026)
 
-Số liệu lấy từ `results/figures/search_runs.csv`, `scale_aggregate.csv`, `results/raw/predictor_metrics.json`
-(sinh bằng `make figures`). Máy: 8 core, Docker/WSL 20 GB RAM, không dùng GPU. Search chạy tuần tự, 2 worker.
+Số liệu lấy từ `results/figures/{search_summary,search_runs,scale_aggregate}.csv`, `pruning_losses_*.csv`,
+`results/raw/predictor_metrics.json` (sinh bằng `make figures`). Máy: Ryzen 5 3400G 8 luồng, Docker/WSL 20 GB RAM,
+không GPU. Search chạy tuần tự, 2 worker, không job nào khác song song.
 
-**E3–E4: search miniF2F (100 bài, seed 42, Lean v4.9.0 + mathlib)**
+**E3–E4: search miniF2F (100 bài, seed 42, Lean v4.9.0 + mathlib).** Nhiều lần chạy: median [min–max].
 
-| Run | Budget | τ | Proof rate | States / bài | Wall s / bài |
-|---|---|---|---|---|---|
-| baseline | S (50 calls, 30 s) | 0 | 0.32 | 25.7 | 16.1 |
-| baseline | M (200 calls, 120 s) | 0 | 0.32 | 46.5 | 22.3 |
-| baseline | L (800 calls, 300 s) | 0 | 0.32 | 76.7 | 32.8 |
-| pruning live | M | 0.005 | 0.32 | 39.8 (−14%) | 20.5 |
-| pruning live | M | 0.01 | 0.32 | 31.2 (−33%) | 18.9 |
+| Run | Budget | τ | Lần | Proof rate | States / bài | Wall s / bài |
+|---|---|---|---|---|---|---|
+| baseline | S (50 calls, 30 s) | 0 | 1 | 0.32 | 25.7 | 16.1 |
+| baseline | M (200 calls, 120 s) | 0 | 3 | 0.32 | 46.5 [44.5–46.5] | 26.7 [22.3–36.6] |
+| baseline | L (800 calls, 300 s) | 0 | 1 | 0.32 | 76.7 | 32.8 |
+| pruning live | M | 0.005 | 1 | 0.32 | 39.8 (−14%) | 20.5 |
+| **pruning live (chọn)** | M | **0.01** | 1 | **0.32** | **31.2 (−33%)** | 18.9 |
 
-- Tăng budget không chứng minh thêm bài nào. Các bài còn lại cần tactic ngoài danh sách cố định (vd `interval_cases`).
-- Replay dự đoán τ=0.01 còn 0.30. Live đạt 0.32 vì replay tính `unknown` là thất bại (ước lượng bảo thủ).
-  Từ τ≥0.02, replay cho thấy proof rate giảm nhanh (0.25 ở τ=0.02).
+- **τ cuối cùng = 0.01**: giảm 33% states expanded so với median baseline M, không mất bài nào.
+- Tăng budget không chứng minh thêm bài nào: cả 5 run baseline giải đúng cùng 32 bài. Các bài còn lại cần
+  tactic ngoài danh sách cố định (vd `interval_cases`). Proof rate và states gần như tất định; wall time dao động
+  theo độ trễ Lean nên không dùng làm metric chính.
+- Replay (ước lượng bảo thủ, `unknown` = thất bại) ở τ=0.01 cho 0.30, live đạt 0.32: 2 bài replay "mất" được giải
+  bằng `nlinarith`, lời gọi mà baseline chưa từng làm. Tiết kiệm states ở τ=0.01 tăng theo budget
+  (replay: S −29%, M −42%, L −53%); từ τ≥0.02 proof rate giảm nhanh (0.25).
+- Phân tích lỗi (`pruning_losses_M*.csv`): 100% bài bị mất là do policy cắt đúng tactic trên đường chứng minh
+  gốc (2/7/18/21/29 bài ở τ=0.01/0.02/0.05/0.1/0.2), chủ yếu `rfl` (mathd_numbertheory) và `linarith`
+  (mathd_algebra) — các tactic hiếm trong mathlib nên predictor cho điểm thấp.
+- Hành vi search (`search_behavior.png`): ~13 lời gọi cho mỗi state nhưng chỉ ~1 state con mới; `ring`/`norm_num`
+  không lỗi nhưng 75%/94% lời gọi trả về state đã gặp; `exact?` tốn ~5 s/lời gọi so với ~4 ms của `decide`.
 
 **E2: predictor (Benchmark 4, test 4,221 bước):** most-frequent top-1/top-10 = 0.203/0.724;
-TF-IDF+SGD = 0.301/0.851; ablation unigram = 0.286/0.845.
+TF-IDF+SGD = 0.301/0.851; ablation unigram = 0.285/0.845.
 
-**E1: Spark:** runtime 26–33 s gần như không đổi từ 100 đến 50K định lý (213K event, lake 18 MB).
-Ở cỡ dữ liệu này chi phí cố định (JVM, lập lịch) lấn át; chưa đo được hiệu ứng mở rộng thật.
+**E1: Spark** (median [min–max] của 3 lần):
 
-**Run bị loại:** 5 run search đầu bị lỗi REPL (xem `results/raw/invalid_runs.json`), đã chạy lại sau khi sửa.
+| Mức | Định lý | Event | Runtime s | Event/s | Lake |
+|---|---|---|---|---|---|
+| 100 | 100 | 476 | 20.8 [20.2–26.1] | 23 | 18 MB |
+| 1K | 1,000 | 4,978 | 19.2 [17.9–20.2] | 259 | 18 MB |
+| 10K | 10,000 | 43,815 | 21.2 [20.3–21.7] | 2,062 | 18 MB |
+| all | 50,020 | 213,067 | 23.0 [22.9–23.9] | 9,277 | 18 MB |
+| ×10 (nhân bản) | 500,200 | 2,130,670 | 45.1 [43.6–47.2] | 47,281 | 173 MB |
+| ×50 (nhân bản) | 2,501,000 | 10,653,350 | 133.0 [124.2–135.2] | 80,103 | 865 MB |
+
+Tới 50K định lý chi phí cố định (JVM, lập lịch) lấn át; lake nhân bản (chỉ dùng đo runtime) cho thấy vùng
+tăng gần tuyến tính. Physical plan (`results/raw/spark_plans/`): lọc định lý là BroadcastHashJoin; self-join
+cha–con chuyển từ BroadcastHashJoin (n100) sang SortMergeJoin có shuffle (toàn bộ).
+
+**Run bị loại / thay thế:** 5 run search đầu bị lỗi REPL; các run Spark cũ được chạy lại cùng code
+(xem `results/raw/invalid_runs.json`). Test: 27 pass (`make test`).
 
 ## Giới hạn đã biết
 
