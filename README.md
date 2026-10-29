@@ -22,7 +22,7 @@ Lean REPL/Dojo ─best-first─────┘         │  manifest + sha256   
 | Khối | Mã | Ghi chú |
 |---|---|---|
 | 1 Trace collector | `src/search/{core,live_repl,live,collect,select}.py` | best-first, budget 3 chiều (calls, giây Lean, depth) |
-| 2 Event schema | `src/common/schema.py`, `docs/data_card.md` | v0.1.0, 1 dòng = 1 lần thử tactic |
+| 2 Event schema | `src/common/schema.py`, `../docs/data_card.md` | v0.1.0, 1 dòng = 1 lần thử tactic |
 | 3 Parquet lake | `src/ingest/benchmark.py`, `src/lake/manifest.py` | partition `source`, `budget_id`; zstd; manifest checksum |
 | 4 Spark aggregation | `src/analytics/aggregate.py` | 6 bảng; broadcast join, self-join, window lag, pivot; ghi physical plan |
 | 5–6 Feature/predictor/policy | `src/model/{train,policy}.py` | baseline most-frequent vs TF-IDF + SGD |
@@ -80,15 +80,6 @@ make sweep RUN=<run_id repl-baseline-M>                   # replay τ ∈ {0..0.
 make collect CONFIG=configs/search_repl_prune_M_tau001.yaml       # live check τ đã chọn (0.01); tương tự tau0005
 make aggregate-search && make figures && make dashboard
 ```
-
-### Phần 3 — Báo cáo và slides (chạy trên máy host)
-
-```bash
-pip install -r requirements-docs.txt
-make report                    # report.docx + slides/slides.pptx; mọi số đọc từ results/
-```
-
-`report.pdf` xuất từ `report.docx` (Word → Save as PDF). Kịch bản demo: `slides/demo_script.md`.
 
 Phương án dự phòng (LeanDojo trên chính Benchmark 4, cần trace mathlib — nặng):
 `make select && make baseline` rồi `make sweep RUN=<run_id search-baseline-M>`.
@@ -182,4 +173,4 @@ cha–con chuyển từ BroadcastHashJoin (n100) sang SortMergeJoin có shuffle 
 
 `src/` mã theo khối · `tests/` pytest · `configs/` 1 file/run · `data_sample/` mẫu nhỏ + manifest ·
 `scripts/` tải/tái tạo dữ liệu · `results/raw/` output thô · `results/figures/` hình sinh tự động ·
-`docs/` data card, model card, AI use, license · `app/` dashboard · `slides/`.
+`app/` dashboard.

@@ -11,3 +11,28 @@ __pycache__/
 ~$*
 # output Spark của lake nhân bản: chỉ là bản sao ×k của benchmark_nall (runtime đã ở runs.jsonl); tái tạo: make replicate aggregate-rep
 results/raw/agg/benchmark_rep_*/
+
+# Tài liệu báo cáo/slide không thuộc repo
+.claude/
+CLAUDE.md
+docs/
+slides/
+report.*
+*.docx
+*.pptx
+*.pdf
+
+# Python / tooling
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
